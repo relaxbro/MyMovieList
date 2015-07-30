@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
 using MyMovieList.Model;
+using MyMovieList.Utilities;
 
 namespace MyMovieList.ViewModel
 {
@@ -16,7 +18,7 @@ namespace MyMovieList.ViewModel
         }
         //private SearchParser searchParser;
 
-        private string _NewSearch;
+        private string _NewSearch = "";
         public string NewSearch
         {
             get
@@ -50,5 +52,25 @@ namespace MyMovieList.ViewModel
             SearchParser searchParser = new SearchParser();
             return searchParser.Search(search);
         }
+
+        #region Search
+        public ICommand NewSearch
+        {
+            get
+            {
+                return new RelayCommand();
+            }
+        }
+
+        public void ExecuteNewSearch(object parameter)
+        {
+
+        }
+
+        public bool CanNewSearch(object parameter)
+        {
+            return true;
+        }
+        #endregion
     }
 }

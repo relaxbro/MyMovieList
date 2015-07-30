@@ -20,23 +20,23 @@ namespace MyMovieList.View
     /// </summary>
     public partial class SearchWindow : Window
     {
-        public SearchViewModel VM { get; set; }
-        //public SearchViewModel VM;
+        //public SearchViewModel ViewModel { get; set; }
+        //public SearchViewModel ViewModel;
 
         public SearchWindow()
         {
-            //VM = new SearchViewModel();
+            //ViewModel = new SearchViewModel();
 
-            DataContext = VM;
+            //DataContext = ViewModel;
 
             InitializeComponent();
         }
 
         private void SearchWindowSearchButtonClick(object sender, RoutedEventArgs e)
         {
-            System.Console.WriteLine("test NewSearch" + VM.NewSearch);
-            string result = VM.UseSearchParser(VM.NewSearch);
-            System.Console.WriteLine(result);
+            System.Console.WriteLine("test NewSearch" + (SearchViewModel)DataContext.NewSearch);
+            //string result = vm.UseSearchParser(vm.NewSearch);
+            //System.Console.WriteLine(result);
         }
 
         private void SearchWindowCancelButtonClick(object sender, RoutedEventArgs e)

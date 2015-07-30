@@ -13,10 +13,14 @@
         ResizeMode="NoResize">
 
     <Window.Resources>
-        <vm:SearchViewModel x:Key="vm" />
+        <!--<vm:SearchViewModel x:Key="vm" /> -->
     </Window.Resources>
 
-    <Grid DataContext="{StaticResource vm}">
+    <Window.DataContext>
+        <vm:SearchViewModel />
+    </Window.DataContext>
+
+    <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
