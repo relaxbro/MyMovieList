@@ -15,7 +15,7 @@ namespace MyMovieList.Model
 
         public string RequestWithID(string imdbID)
         {
-            string URLfull = URLBase + "i+" + imdbID + "&plot=full&r=json";
+            string URLfull = URLBase + "i=" + imdbID + "&plot=full&r=json";
             WebRequest request = WebRequest.Create(URLfull);
             WebResponse response = request.GetResponse();
             System.Console.WriteLine(((HttpWebResponse)response).StatusDescription);
@@ -24,7 +24,7 @@ namespace MyMovieList.Model
             StreamReader reader = new StreamReader(dataStream);
             string responseFromServer = reader.ReadToEnd();
 
-            System.Console.WriteLine(responseFromServer);
+            //System.Console.WriteLine(responseFromServer);
 
             reader.Close();
             response.Close();
@@ -34,7 +34,8 @@ namespace MyMovieList.Model
 
         public string RequestWithSearch(string search)
         {
-            string URLfull = URLBase + "s+" + search + "&r=json";
+            string URLfull = URLBase + "s=" + search + "&r=json";
+            //string URLfull = URLBase + 
             WebRequest request = WebRequest.Create(URLfull);
             WebResponse response = request.GetResponse();
             System.Console.WriteLine(((HttpWebResponse)response).StatusDescription);
@@ -43,7 +44,7 @@ namespace MyMovieList.Model
             StreamReader reader = new StreamReader(dataStream);
             string responseFromServer = reader.ReadToEnd();
 
-            System.Console.WriteLine(responseFromServer);
+            //System.Console.WriteLine(responseFromServer);
 
             reader.Close();
             response.Close();

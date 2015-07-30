@@ -15,10 +15,12 @@ namespace MyMovieList.Model
         {
             if (search.Length == imdbIDLength && search[0] == 't' && search[1] == 't')
             {
+                System.Console.WriteLine("Searching with imdbID");
                 return omdb.RequestWithID(search);
             }
             else
             {
+                System.Console.WriteLine("Searching general");
                 return omdb.RequestWithSearch(search);
             }
         }

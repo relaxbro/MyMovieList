@@ -34,7 +34,7 @@ namespace MyMovieList.View
 
         private void SearchWindowSearchButtonClick(object sender, RoutedEventArgs e)
         {
-            System.Console.WriteLine("test NewSearch" + (SearchViewModel)DataContext.NewSearch);
+            //System.Console.WriteLine("test NewSearch" + (SearchViewModel)DataContext.NewSearchTerm);
             //string result = vm.UseSearchParser(vm.NewSearch);
             //System.Console.WriteLine(result);
         }

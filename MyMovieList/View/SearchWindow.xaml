@@ -35,9 +35,9 @@
         
         <TextBlock Grid.Row="0" Grid.Column="0" Text="Search:" Margin="5,5,5,5" />
 
-        <TextBox x:Name="SearchTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding Path=NewSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5" />
+        <TextBox x:Name="SearchTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding Path=NewSearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5" />
 
-        <Button Grid.Row="1" Grid.Column="0" Content="Search" Margin="5,5,5,5" Padding="5,2" Click="SearchWindowSearchButtonClick" />
+        <Button Grid.Row="1" Grid.Column="0" Content="Search" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=NewSearch}" />
         
         <ListView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,5,5,5">
             <ListViewItem Content="Result1" />

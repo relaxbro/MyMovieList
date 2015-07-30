@@ -18,6 +18,12 @@ namespace MyMovieList
             this.parseData(jsonData);
         }
 
+        private bool _FullData = false;
+        public bool FullData
+        {
+            get { return _FullData; }
+        }
+
         private string _Title;
         public string Title {
             get { return _Title; }
@@ -144,6 +150,16 @@ namespace MyMovieList
             this.Country = (string)obj["Country"];
             this.Awards = (string)obj["Awards"];
             this.imdbRating = (string)obj["imdbRating"];
+            this._FullData = true;
+        }
+
+        public void parsePartialData(string jsonData)
+        {
+            JObject obj = JObject.Parse(jsonData);
+
+            this.Title = (string)obj["Title"];
+            this.Year = (int)obj["Year"];
+            this.imdbID = (string)obj["imdbID"];
         }
     }
 }
