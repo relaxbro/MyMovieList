@@ -36,8 +36,8 @@ namespace MyMovieList
             set { _Seen = value; }
         }
 
-        private int _Year;
-        public int Year
+        private string _Year;
+        public string Year
         {
             get { return _Year; }
             set { _Year = value; }
@@ -137,7 +137,7 @@ namespace MyMovieList
             }
 
             this.Title = (string)obj["Title"];
-            this.Year = (int)obj["Year"];
+            this.Year = (string)obj["Year"];
             this.imdbID = (string)obj["imdbID"];
             this.Released = (string)obj["Released"];
             this.Runtime = (string)obj["Runtime"];
@@ -158,7 +158,7 @@ namespace MyMovieList
             JObject obj = JObject.Parse(jsonData);
 
             this.Title = (string)obj["Title"];
-            this.Year = (int)obj["Year"];
+            this.Year = (string)obj["Year"];
             this.imdbID = (string)obj["imdbID"];
         }
     }
