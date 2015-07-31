@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MyMovieList.ViewModel;
+using MyMovieList.Model;
 
 namespace MyMovieList.View
 {
@@ -22,21 +23,12 @@ namespace MyMovieList.View
     {
         //public SearchViewModel ViewModel { get; set; }
         //public SearchViewModel ViewModel;
+        public Movie movieToMainView { get; set; }
 
-        public SearchWindow()
+        public SearchWindow(Movie currentMovie)
         {
-            //ViewModel = new SearchViewModel();
-
-            //DataContext = ViewModel;
-
+            movieToMainView = currentMovie;
             InitializeComponent();
-        }
-
-        private void SearchWindowSearchButtonClick(object sender, RoutedEventArgs e)
-        {
-            //System.Console.WriteLine("test NewSearch" + (SearchViewModel)DataContext.NewSearchTerm);
-            //string result = vm.UseSearchParser(vm.NewSearch);
-            //System.Console.WriteLine(result);
         }
 
         private void SearchWindowCancelButtonClick(object sender, RoutedEventArgs e)

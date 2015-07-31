@@ -62,6 +62,17 @@ namespace MyMovieList.ViewModel
             }
         }
 
+        private OmdbSearchResult _SelectedResult;
+        public OmdbSearchResult SelectedResult
+        {
+            get { return _SelectedResult; }
+            set
+            {
+                _SelectedResult = value;
+                onPropertyChanged("SearchResult");
+            }
+        }
+
         public string UseSearchParser(string search)
         {
             SearchParser searchParser = new SearchParser();
@@ -141,6 +152,32 @@ namespace MyMovieList.ViewModel
         public bool CanNewSearch(object parameter)
         {
             return true;
+        }
+        #endregion
+
+
+        #region Select
+        public ICommand SelectResult
+        {
+            get
+            {
+                return new RelayCommand(ExecuteSelectResult, CanSelectResult);
+            }
+        }
+        public void ExecuteSelectResult(object parameter)
+        {
+            Console.WriteLine("inside executeselectresult");
+            Console.WriteLine("selected item title: " + SelectedResult.Title);
+            
+        }
+
+        public bool CanSelectResult(object parameter)
+        {
+            if (SelectedResult != null)
+            {
+                return true;
+            }
+            return false;
         }
         #endregion
     }

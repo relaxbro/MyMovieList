@@ -60,7 +60,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\Movie.cs" />
-    <Compile Include="Model\OmdbApiParseSearch.cs" />
     <Compile Include="Model\OmdbApiRequest.cs" />
     <Compile Include="Model\OmdbSearchResult.cs" />
     <Compile Include="Model\SearchParser.cs" />

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:MyMovieList.ViewModel"
         Title="MyMovieList" 
-        Height="400" 
+        Height="600" 
         Width="525"
         MinHeight="400" 
         MinWidth="525"
@@ -101,44 +101,44 @@
             <Image Grid.RowSpan="6" Grid.Column="0"  
                    Width="50"
                    Margin="5, 5, 5, 5" 
-                   Source="pack://application:,,,/MyMovieList;component/Resources/postertest.jpg"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="Title english" />
-            <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="Title english" />
+                   Source="{Binding Path=CurrentMovie.PosterLink}"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Path=CurrentMovie.Title}" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="Title original" />
 
             <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <TextBlock Text="Year: " />
-                <TextBlock Text="sett inn ar" />
+                <TextBlock Text="{Binding Path=CurrentMovie.Year}" />
             </StackPanel>
 
             <StackPanel Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <TextBlock Text="Genres: " />
-                <TextBlock Text="sett inn sjangre" />
+                <TextBlock Text="{Binding Path=CurrentMovie.Genre}" />
             </StackPanel>
 
             <StackPanel Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <TextBlock Text="Director: " />
-                <TextBlock Text="sett inn aids" />
+                <TextBlock Text="{Binding Path=CurrentMovie.Director}" />
             </StackPanel>
 
             <StackPanel Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <TextBlock Text="Actors: " />
-                <TextBlock Text="actors list of 3" />
+                <TextBlock Text="{Binding Path=CurrentMovie.Actors}" />
             </StackPanel>
 
             <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Text="IMDB rating" />
-            <TextBlock x:Name="TextBlockIMDBRating" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Text="N/A" />
+            <TextBlock x:Name="TextBlockIMDBRating" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Path=CurrentMovie.imdbRating}" />
             <TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Text="My rating" />
-            <TextBlock x:Name="TextBlockMyRating" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Text="N/A" />
+            <TextBlock x:Name="TextBlockMyRating" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Path=CurrentMovie.MyRating}" />
 
             <TextBlock Grid.Row="6" Grid.Column="2" Text="First seen:" HorizontalAlignment="Right" />
-            <TextBlock x:Name="TextBlockDateFirstSeen" Grid.Row="7" Grid.Column="2" Text="N/A" HorizontalAlignment="Right" />
+            <TextBlock x:Name="TextBlockDateFirstSeen" Grid.Row="7" Grid.Column="2" Text="{Binding Path=CurrentMovie.FirstSeen}" HorizontalAlignment="Right" />
 
             <TextBlock Grid.Row="8" Grid.Column="2" Text="Last seen:" HorizontalAlignment="Right" />
-            <TextBlock x:Name="TextBlockDateLastSeen" Grid.Row="9" Grid.Column="2" Text="N/A" HorizontalAlignment="Right" />
+            <TextBlock x:Name="TextBlockDateLastSeen" Grid.Row="9" Grid.Column="2" Text="{Binding Path=CurrentMovie.LastSeen}" HorizontalAlignment="Right" />
 
             <TextBlock Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Text="Plot:" />
 
-            <TextBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" Text="pltpltpltpltplt" />
+            <TextBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding Path=CurrentMovie.Plot}" />
 
             <TextBlock Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="3" Text="My comments:" />
 
