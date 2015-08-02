@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using MyMovieList.Model;
+using MyMovieList.Utilities;
 
 namespace MyMovieList
 {
@@ -32,20 +33,41 @@ namespace MyMovieList
         private string _Title;
         public string Title {
             get { return _Title; }
-            set { _Title = value;}
+            set
+            {
+                _Title = value;
+                //if (MovieChanged != null)
+                //{
+                //    MovieChanged(this, new ModelChangedEventArgs { OldValue = _Title, NewValue = value});
+                //}
+            }
         }
 
         private bool _Seen = false;
         public bool Seen {
             get { return _Seen; }
-            set { _Seen = value; }
+            set
+            {
+                _Seen = value;
+                //if (MovieChanged != null)
+                //{
+                //    MovieChanged(this, new ModelChangedEventArgs { OldValue = _Seen, NewValue = value });
+                //}
+            }
         }
 
         private string _FirstSeen = "N/A";
         public string FirstSeen
         {
             get { return _FirstSeen; }
-            set { _FirstSeen = value; }
+            set
+            {
+                _FirstSeen = value;
+                //if (MovieChanged != null)
+                //{
+                //    MovieChanged(this, new ModelChangedEventArgs { OldValue = _FirstSeen, NewValue = value });
+                //}
+            }
         }
 
         private string _LastSeen = "N/A";
@@ -69,7 +91,7 @@ namespace MyMovieList
             set { _MyComment = value; }
         }
 
-        private string _Year;
+        private string _Year = "N/A";
         public string Year
         {
             get { return _Year; }
@@ -83,91 +105,91 @@ namespace MyMovieList
             set { _imdbID = value; }
         }
 
-        private string _Released;
+        private string _Released = "N/A";
         public string Released
         {
             get { return _Released; }
             set { _Released = value; }
         }
 
-        private string _Runtime;
+        private string _Runtime = "N/A";
         public string Runtime
         {
             get { return _Runtime; }
             set { _Runtime = value; }
         }
 
-        private string _Genre;
+        private string _Genre = "N/A";
         public string Genre
         {
             get { return _Genre; }
             set { _Genre = value; }
         }
 
-        private string _Director;
+        private string _Director = "N/A";
         public string Director
         {
             get { return _Director; }
             set { _Director = value; }
         }
 
-        private string _Writer;
+        private string _Writer = "N/A";
         public string Writer
         {
             get { return _Writer; }
             set { _Writer = value; }
         }
 
-        private string _Actors;
+        private string _Actors = "N/A";
         public string Actors
         {
             get { return _Actors; }
             set { _Actors = value; }
         }
 
-        private string _Plot;
+        private string _Plot = "N/A";
         public string Plot
         {
             get { return _Plot; }
             set { _Plot = value; }
         }
 
-        private string _PosterLink;
+        private string _PosterLink = "/MyMovieList;component/Resources/noposter.jpg";
         public string PosterLink
         {
             get { return _PosterLink; }
             set { _PosterLink = value; }
         }
 
-        private string _Language;
+        private string _Language = "N/A";
         public string Language
         {
             get { return _Language; }
             set { _Language = value; }
         }
 
-        private string _Country;
+        private string _Country = "N/A";
         public string Country
         {
             get { return _Country; }
             set { _Country = value; }
         }
 
-        private string _Awards;
+        private string _Awards = "N/A";
         public string Awards
         {
             get { return _Awards; }
             set { _Awards = value; }
         }
 
-        private string _imdbRating;
+        private string _imdbRating = "N/A";
         public string imdbRating
         {
             get { return _imdbRating; }
             set { _imdbRating = value; }
         }
 
-        private void LoadDataWithID(string ID)
+        public void LoadDataWithID(string ID)
         {
             OmdbApiRequest request = new OmdbApiRequest();
             parseData(request.RequestWithID(ID));
@@ -203,6 +225,7 @@ namespace MyMovieList
             this.Awards = (string)obj["Awards"];
             this.imdbRating = (string)obj["imdbRating"];
             //this._FullData = true;
+
         }
 
         //public void parsePartialData(string jsonData)
@@ -213,5 +236,8 @@ namespace MyMovieList
         //    this.Year = (string)obj["Year"];
         //    this.imdbID = (string)obj["imdbID"];
         //}
+
+        //public delegate void MovieChangedEvent(object sender, ModelChangedEventArgs e);
+        //public event MovieChangedEvent MovieChanged;
     }
 }

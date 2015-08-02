@@ -12,7 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using GalaSoft.MvvmLight.Messaging;
 using MyMovieList.ViewModel;
+using MyMovieList.Utilities;
 
 
 namespace MyMovieList
@@ -22,17 +24,20 @@ namespace MyMovieList
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainViewModel VM { get; set; }
+        public MainViewModel vm { get; set; }
 
         public MainWindow()
         {
-            VM = new MainViewModel();
             InitializeComponent();
+            vm = new MainViewModel();
+            this.DataContext = vm;
+            Messenger.Default.Register<OnPropertyChangedMessage>(this, (action) => vm.RecieveMessage(action));
+
         }
 
         private void SearchButtonClick(object sender, RoutedEventArgs e)
         {
-            VM.SearchForNew(this);
+            vm.SearchForNew(this);
         }
     }
 }

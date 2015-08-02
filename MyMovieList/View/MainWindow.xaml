@@ -13,10 +13,10 @@
         WindowState="{Binding Path=Window.State, Mode=TwoWay}">
 
     <Window.Resources>
-        <vm:MainViewModel x:Key="vm" />
+        <!-- <vm:MainViewModel x:Key="vm" /> -->
     </Window.Resources>
     
-    <DockPanel DataContext="{StaticResource vm}">
+    <DockPanel>
 
         <!--Menu bar-->
         <Menu DockPanel.Dock="Top">
@@ -67,8 +67,17 @@
 
             <TextBox Grid.Row="4" Grid.ColumnSpan="2" Text="Search in list" Margin="5,5,5,5"/>
 
-            <ListView Grid.Row="5" Grid.ColumnSpan="2" Margin="5,5,5,5">
-                <ListViewItem Content="ListViewItem test" />
+            <ListView Grid.Row="5" Grid.ColumnSpan="2" Margin="5,5,5,5" ItemsSource="{Binding Path=Movies, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Path=SelectedMovie}" >
+                <ListView.Resources>
+                    <Style TargetType="GridViewColumnHeader">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </Style>
+                </ListView.Resources>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Width="Auto" Header="Title" DisplayMemberBinding="{Binding Title}" />
+                    </GridView>
+                </ListView.View>
             </ListView>
 
         </Grid>
@@ -146,7 +155,7 @@
 
             <StackPanel Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right">
                 <CheckBox x:Name="CheckBoxSeenItem" Content="Seen" Margin="5,5,5,5" VerticalAlignment="Center"/>
-                <Button x:Name="ButtonAddToList" Content="Add to list" Margin="5,5,5,5" Padding="5,2" />
+                <Button x:Name="ButtonAddToList" Content="Add to list" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=AddToList}"/>
                 <Button x:Name="ButtonUpdate" Content="Update" Margin="5,5,5,5" Padding="5,2" />
                 <Button x:Name="ButtonRemove" Content="Remove" Margin="5,5,5,5" Padding="5,2" />
             </StackPanel>

@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
 using MyMovieList.ViewModel;
 using MyMovieList.Model;
 
@@ -23,13 +24,32 @@ namespace MyMovieList.View
     {
         //public SearchViewModel ViewModel { get; set; }
         //public SearchViewModel ViewModel;
-        public Movie movieToMainView { get; set; }
+        //public Movie movieToMainView { get; set; 
 
-        public SearchWindow(Movie currentMovie)
+        public SearchWindow()
         {
-            movieToMainView = currentMovie;
+                        
             InitializeComponent();
+            SearchViewModel vm = new SearchViewModel();
+            this.DataContext = vm;
+            if (vm.CloseWindowAction == null)
+            {
+                vm.CloseWindowAction = new Action(() => this.Close());
+            }
+            //ViewModel.CurrentMovie = currentMovie;
+
         }
+
+        //public SearchWindow()
+        //{
+        //    InitializeComponent();
+        //    SearchViewModel vm = new SearchViewModel(mainVM);
+        //    this.DataContext = vm;
+        //    if (vm.CloseWindowAction == null)
+        //    {
+        //        vm.CloseWindowAction = new Action(() => this.Close());
+        //    }
+        //}
 
         private void SearchWindowCancelButtonClick(object sender, RoutedEventArgs e)
         {

@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
+using GalaSoft.MvvmLight.Messaging;
 using MyMovieList.Model;
 using MyMovieList.Utilities;
 
@@ -17,10 +18,37 @@ namespace MyMovieList.ViewModel
     public class SearchViewModel : ViewModelBase
     {
         ObservableCollection<OmdbSearchResult> _OmdbSearchResults = new ObservableCollection<OmdbSearchResult>();
-
+        
         public SearchViewModel()
         {
             System.Console.WriteLine("creating new searchviewmodel");
+        }
+
+
+        public ObservableCollection<Movie> Movies
+        {
+            get
+            {
+                return DataStorage.Movies;
+            }
+            set
+            {
+                DataStorage.Movies = value;
+                onPropertyChanged("Movies");
+            }
+        }
+
+        public Movie CurrentMovie
+        {
+            get
+            {
+                return DataStorage.CurrentMovie;
+            }
+            set
+            {
+                DataStorage.CurrentMovie = value;
+                onPropertyChanged("CurrentMovie");
+            }
         }
 
         private string _NewSearchTerm = "";
@@ -92,7 +120,7 @@ namespace MyMovieList.ViewModel
         {
 
             _OmdbSearchResults.Clear();
-            System.Console.WriteLine("inside ExecuteNewSearch");
+            //System.Console.WriteLine("inside ExecuteNewSearch");
             System.Console.WriteLine("NewSearchTerm: " + NewSearchTerm);
 
             SearchStatus = "Searching for " + NewSearchTerm;
@@ -102,8 +130,7 @@ namespace MyMovieList.ViewModel
 
             string[] searchResultSplit = searchResult.Split(':');
             if (searchResultSplit[0] == "{\"Title\"")
-            {
-                System.Console.WriteLine("single result");
+            { 
                 JObject obj = JObject.Parse(searchResult);
                 _OmdbSearchResults.Add(new OmdbSearchResult((string)obj["Title"], (string)obj["Year"], (string)obj["imdbID"]));
                 SearchStatus = "Found 1 movie.";
@@ -113,33 +140,15 @@ namespace MyMovieList.ViewModel
             {
                 string searchResultTrimmed = "[" + searchResult.Split('[', ']')[1] +"]";
 
-                System.Console.WriteLine("multiple results");
                 JSonHelper jsonHelper = new JSonHelper();
                 OmdbSearchResults = jsonHelper.ConvertJSonToObject<ObservableCollection<OmdbSearchResult>>(searchResultTrimmed);
                 SearchStatus = "Found " + _OmdbSearchResults.Count + " movies.";
 
-                //System.Runtime.Serialization.Json.DataContractJsonSerializer deserializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(OmdbSearchResult));
-                //MemoryStream memStream = new MemoryStream(System.Text.ASCIIEncoding.ASCII.GetBytes(searchResult));
-                //memStream.Position = 0;
-                //_OmdbSearchResults.Add((OmdbSearchResult)deserializer.ReadObject(memStream));
-                //using (MemoryStream memStream = new MemoryStream(Encoding.Unicode.GetBytes(searchResult)))
-                //{
-                    //OmdbSearchResult result = (OmdbSearchResult)deserializer.ReadObject(memStream);
-                    //OmdbSearchResults = deserializer.ReadObject(memStream) as ObservableCollection<OmdbSearchResult>;
-                    //Console.WriteLine("yeah trying to deserialize " + result.Title);
-                //}
                 if (_OmdbSearchResults == null)
                 {
                     Console.WriteLine("Fuck observablecollection is null");
                 }
 
-                //int counter = 0;
-                //foreach (OmdbSearchResult omdbres in _OmdbSearchResults)
-                //{
-                //    counter++;
-                //    System.Console.WriteLine(counter);
-                //    System.Console.WriteLine(omdbres.Title);
-                //}
             }
             else
             {
@@ -156,22 +165,35 @@ namespace MyMovieList.ViewModel
         #endregion
 
 
-        #region Select
-        public ICommand SelectResult
+        #region SelectAndClose
+        public ICommand SelectAndCloseCommand
         {
             get
             {
-                return new RelayCommand(ExecuteSelectResult, CanSelectResult);
+                return new RelayCommand(ExecuteSelectAndClose, CanSelectAndClose);
             }
         }
-        public void ExecuteSelectResult(object parameter)
+        public void ExecuteSelectAndClose(object parameter)
         {
-            Console.WriteLine("inside executeselectresult");
-            Console.WriteLine("selected item title: " + SelectedResult.Title);
+            if (DataStorage.MovieExistsInCollection(SelectedResult.imdbID))
+            {
+                CurrentMovie = DataStorage.GetMovieWithID(SelectedResult.imdbID);
+            }
+            else
+            {
+                CurrentMovie = new Movie(SelectedResult.imdbID);
+                DataStorage.Movies.Add(CurrentMovie);
+            }
+
+            Console.WriteLine("after update " + CurrentMovie.Title);
             
+            // TODO create load method
+
+            UpdateCurrentMovie();
+            CloseWindowAction();
         }
 
-        public bool CanSelectResult(object parameter)
+        public bool CanSelectAndClose(object parameter)
         {
             if (SelectedResult != null)
             {
@@ -180,5 +202,15 @@ namespace MyMovieList.ViewModel
             return false;
         }
         #endregion
+
+        public Action CloseWindowAction { get; set; }
+
+        private object UpdateCurrentMovie()
+        {
+            Console.WriteLine("inside svm trying to send message");
+            var msg = new OnPropertyChangedMessage() { Property = "CurrentMovie" };
+            Messenger.Default.Send<OnPropertyChangedMessage>(msg);
+            return null;
+        }
     }
 }

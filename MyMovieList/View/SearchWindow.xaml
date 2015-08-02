@@ -10,15 +10,16 @@
         Height="350" 
         Width="350"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        x:Name="this">
 
     <Window.Resources>
         <!--<vm:SearchViewModel x:Key="vm" /> -->
     </Window.Resources>
 
-    <Window.DataContext>
-        <vm:SearchViewModel />
-    </Window.DataContext>
+   <!-- <Window.DataContext> -->
+        <!-- <vm:SearchViewModel x:Name="ViewModel"/> -->
+    <!-- </Window.DataContext> -->
 
     <Grid >
         <Grid.RowDefinitions>
@@ -50,7 +51,7 @@
 
         <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
             <TextBlock Text="{Binding Path=SearchStatus, Mode=OneWay}" Margin="5,5,5,5" />
-            <Button Content="Select" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=SelectResult}"/>
+            <Button Content="Select" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=SelectAndCloseCommand}"/>
             <Button x:Name="SearchWindowCancelButton"  Content="Cancel" Margin="5,5,5,5" Padding="5,2" Click="SearchWindowCancelButtonClick" />
         </StackPanel>
 

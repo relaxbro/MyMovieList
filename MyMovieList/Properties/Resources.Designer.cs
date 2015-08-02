@@ -73,6 +73,16 @@ namespace MyMovieList.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap noposter {
+            get {
+                object obj = ResourceManager.GetObject("noposter", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap postertest {
             get {
                 object obj = ResourceManager.GetObject("postertest", resourceCulture);
