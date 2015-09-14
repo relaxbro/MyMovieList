@@ -8,7 +8,7 @@
 ### Todo
  - Implement TV series
  - Implement user ratings
- - Fig UI scaling
+ - Fix UI scaling, its terrible
  - Add movable separator between list and movieviewer
  - Fix Actor being too long
  - Include Rotten Tomatoes rating
