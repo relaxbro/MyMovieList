@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
 using Newtonsoft.Json.Linq;
 using MyMovieList.Model;
 using MyMovieList.Utilities;
 
 namespace MyMovieList
 {
-    public class Movie
+    public class Movie: INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public Movie()
         {
 
@@ -49,6 +52,7 @@ namespace MyMovieList
             set
             {
                 _Seen = value;
+                OnPropertyChanged("Seen");
                 //if (MovieChanged != null)
                 //{
                 //    MovieChanged(this, new ModelChangedEventArgs { OldValue = _Seen, NewValue = value });
@@ -63,10 +67,7 @@ namespace MyMovieList
             set
             {
                 _FirstSeen = value;
-                //if (MovieChanged != null)
-                //{
-                //    MovieChanged(this, new ModelChangedEventArgs { OldValue = _FirstSeen, NewValue = value });
-                //}
+                OnPropertyChanged("FirstSeen");
             }
         }
 
@@ -74,7 +75,11 @@ namespace MyMovieList
         public string LastSeen
         {
             get { return _LastSeen; }
-            set { _LastSeen = value; }
+            set
+            {
+                _LastSeen = value;
+                OnPropertyChanged("LastSeen");
+            }
         }
 
         private string _MyRating = "N/A";
@@ -84,7 +89,7 @@ namespace MyMovieList
             set { _MyRating = value; }
         }
 
-        private string _MyComment = "No comment yet.";
+        private string _MyComment = "No comments yet.";
         public string MyComment
         {
             get { return _MyComment; }
@@ -103,6 +108,22 @@ namespace MyMovieList
         {
             get { return _imdbID; }
             set { _imdbID = value; }
+        }
+
+        //private string _imdbURL;
+        public string imdbURL
+        {
+            get
+            {
+                if (imdbID != null)
+                {
+                    return "http://akas.imdb.com/title/" + imdbID;
+                }
+                else
+                {
+                    return "URL N/A";
+                }
+            }
         }
 
         private string _Released = "N/A";
@@ -226,6 +247,20 @@ namespace MyMovieList
             this.imdbRating = (string)obj["imdbRating"];
             //this._FullData = true;
 
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                return;
+            }
+
+            var changed = PropertyChanged;
+            if (changed != null)
+            {
+                changed(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
 
         //public void parsePartialData(string jsonData)

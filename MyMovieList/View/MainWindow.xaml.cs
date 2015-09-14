@@ -39,5 +39,25 @@ namespace MyMovieList
         {
             vm.SearchForNew(this);
         }
+
+        private void NewFileButtonClick(object sender, RoutedEventArgs e)
+        {
+            vm.NewFile();
+        }
+
+        private void OpenFileButtonClick(object sender, RoutedEventArgs e)
+        {
+            vm.OpenFile();
+        }
+
+        private void SaveFileClick(object sender, RoutedEventArgs e)
+        {
+            vm.SaveFile();
+        }
+
+        private void SaveFileAsClick(object sender, RoutedEventArgs e)
+        {
+            vm.SaveFileAs();
+        }
     }
 }

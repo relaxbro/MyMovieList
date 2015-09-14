@@ -182,7 +182,7 @@ namespace MyMovieList.ViewModel
             else
             {
                 CurrentMovie = new Movie(SelectedResult.imdbID);
-                DataStorage.Movies.Add(CurrentMovie);
+                //Movies.Add(CurrentMovie);
             }
 
             Console.WriteLine("after update " + CurrentMovie.Title);

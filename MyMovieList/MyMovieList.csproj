@@ -84,6 +84,7 @@
     <Compile Include="Model\OmdbApiRequest.cs" />
     <Compile Include="Model\OmdbSearchResult.cs" />
     <Compile Include="Model\SearchParser.cs" />
+    <Compile Include="Utilities\BoolToVisibleOrCollapsedConverter.cs" />
     <Compile Include="Utilities\DelegateCommand.cs" />
     <Compile Include="Utilities\JSonHelper.cs" />
     <Compile Include="Utilities\ModelChangedEventArgs.cs" />
@@ -137,7 +138,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <Resource Include="Resources\movietest.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
