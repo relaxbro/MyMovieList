@@ -210,6 +210,7 @@ namespace MyMovieList
             set { _imdbRating = value; }
         }
 
+
         public void LoadDataWithID(string ID)
         {
             OmdbApiRequest request = new OmdbApiRequest();
@@ -245,8 +246,9 @@ namespace MyMovieList
             this.Country = (string)obj["Country"];
             this.Awards = (string)obj["Awards"];
             this.imdbRating = (string)obj["imdbRating"];
-            //this._FullData = true;
-
+            System.Console.WriteLine("aids " + (string)obj["tomatoMeter"]);
+            System.Console.WriteLine("aids " + (string)obj["asdfasdf"]);
+            System.Console.WriteLine("-----------------------------------------");
         }
 
         private void OnPropertyChanged(string propertyName)

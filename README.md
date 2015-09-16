@@ -1,5 +1,7 @@
 # MyMovieList
 
+Keep track of movies you have watched, and movies that you plan to watch.
+
 ## Current 
 
 ![Screenshot](/Screenshots/screenshot14092015.jpg)

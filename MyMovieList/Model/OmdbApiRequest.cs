@@ -15,7 +15,7 @@ namespace MyMovieList.Model
 
         public string RequestWithID(string imdbID)
         {
-            string URLfull = URLBase + "i=" + imdbID + "&plot=full&r=json";
+            string URLfull = URLBase + "i=" + imdbID + "&plot=full&r=json&tomatoes=true";
             WebRequest request = WebRequest.Create(URLfull);
             WebResponse response = request.GetResponse();
             System.Console.WriteLine(((HttpWebResponse)response).StatusDescription);
