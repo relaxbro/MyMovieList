@@ -1,6 +1,6 @@
 # MyMovieList
 
-Keep track of movies you have watched, and movies that you plan to watch.
+Keep track of movies you have watched and movies that you plan to watch.
 
 ## Current 
 
