@@ -4,18 +4,19 @@ Keep track of movies you have watched and movies that you plan to watch.
 
 ## Current 
 
-![Screenshot](/Screenshots/screenshot14092015.jpg)
+![Screenshot](/Screenshots/screenshot21092015.jpg)
 
 
 ### Todo
+ - Implement async
  - Implement TV series
- - Implement user ratings
- - Fix UI scaling, its terrible
- - Add movable separator between list and movieviewer
- - Fix Actor being too long
- - Include Rotten Tomatoes rating
 
 
-### Version
+## Version 21.09.2015
+ - Added user rating
+ - Fixed UI scaling
+ - UI updated with more info
+ - Rotten Tomatoes included
 
--1.0
+
+
