@@ -22,34 +22,28 @@ namespace MyMovieList.View
     /// </summary>
     public partial class SearchWindow : Window
     {
-        //public SearchViewModel ViewModel { get; set; }
-        //public SearchViewModel ViewModel;
-        //public Movie movieToMainView { get; set; 
+        public SearchViewModel vm { get; set; }
 
         public SearchWindow()
-        {
-                        
+        {           
             InitializeComponent();
-            SearchViewModel vm = new SearchViewModel();
+            //SearchViewModel vm = new SearchViewModel();
+            vm = new SearchViewModel();
             this.DataContext = vm;
             if (vm.CloseWindowAction == null)
             {
                 vm.CloseWindowAction = new Action(() => this.Close());
             }
-            //ViewModel.CurrentMovie = currentMovie;
-
         }
 
-        //public SearchWindow()
-        //{
-        //    InitializeComponent();
-        //    SearchViewModel vm = new SearchViewModel(mainVM);
-        //    this.DataContext = vm;
-        //    if (vm.CloseWindowAction == null)
-        //    {
-        //        vm.CloseWindowAction = new Action(() => this.Close());
-        //    }
-        //}
+        private void SearchWindowSearchEnterKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                System.Console.WriteLine("inside SearchWindowSearchEnterKeyDown");
+                vm.DoNewSearch();
+            }
+        }
 
         private void SearchWindowCancelButtonClick(object sender, RoutedEventArgs e)
         {

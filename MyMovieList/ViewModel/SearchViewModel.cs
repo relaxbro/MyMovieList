@@ -76,6 +76,7 @@ namespace MyMovieList.ViewModel
             set
             {
                 _SearchStatus = value;
+                System.Console.WriteLine("Searchstatus: " + _SearchStatus);
                 onPropertyChanged("SearchStatus");
             }
         }
@@ -108,16 +109,18 @@ namespace MyMovieList.ViewModel
         }
 
         #region Search
-        public ICommand NewSearch
+        public void DoNewSearch()
         {
-            get
+            if (string.IsNullOrEmpty(NewSearchTerm))
             {
-                return new RelayCommand(ExecuteNewSearch, CanNewSearch);
+                SearchStatus = "Empty search";
+                return;
             }
-        }
-
-        public void ExecuteNewSearch(object parameter)
-        {
+            else if (NewSearchTerm.Length == 1)
+            {
+                SearchStatus = "Provide more than one character";
+                return;
+            }
 
             _OmdbSearchResults.Clear();
             //System.Console.WriteLine("inside ExecuteNewSearch");
@@ -130,7 +133,7 @@ namespace MyMovieList.ViewModel
 
             string[] searchResultSplit = searchResult.Split(':');
             if (searchResultSplit[0] == "{\"Title\"")
-            { 
+            {
                 JObject obj = JObject.Parse(searchResult);
                 _OmdbSearchResults.Add(new OmdbSearchResult((string)obj["Title"], (string)obj["Year"], (string)obj["imdbID"]));
                 SearchStatus = "Found 1 movie.";
@@ -138,11 +141,19 @@ namespace MyMovieList.ViewModel
             }
             else if (searchResultSplit[0] == "{\"Search\"")
             {
-                string searchResultTrimmed = "[" + searchResult.Split('[', ']')[1] +"]";
+                string searchResultTrimmed = "[" + searchResult.Split('[', ']')[1] + "]";
 
                 JSonHelper jsonHelper = new JSonHelper();
                 OmdbSearchResults = jsonHelper.ConvertJSonToObject<ObservableCollection<OmdbSearchResult>>(searchResultTrimmed);
-                SearchStatus = "Found " + _OmdbSearchResults.Count + " movies.";
+
+                if (_OmdbSearchResults.Count == 1)
+                {
+                    SearchStatus = "Found " + _OmdbSearchResults.Count + " movie.";
+                }
+                else
+                {
+                    SearchStatus = "Found " + _OmdbSearchResults.Count + " movies.";
+                }
 
                 if (_OmdbSearchResults == null)
                 {
@@ -153,8 +164,59 @@ namespace MyMovieList.ViewModel
             else
             {
                 Console.WriteLine("no valid results");
-                SearchStatus = "No results found: " + searchResult;
+                //SearchStatus = "No results found: " + searchResult;
+                SearchStatus = "Movie not found";
             }
+        }
+
+        public ICommand NewSearch
+        {
+            get
+            {
+                return new RelayCommand(ExecuteNewSearch, CanNewSearch);
+            }
+        }
+
+        public void ExecuteNewSearch(object parameter)
+        {
+            DoNewSearch();
+
+            //_OmdbSearchResults.Clear();
+            ////System.Console.WriteLine("inside ExecuteNewSearch");
+            //System.Console.WriteLine("NewSearchTerm: " + NewSearchTerm);
+
+            //SearchStatus = "Searching for " + NewSearchTerm;
+            //string searchResult = UseSearchParser(NewSearchTerm);
+            //System.Console.WriteLine(searchResult);
+
+
+            //string[] searchResultSplit = searchResult.Split(':');
+            //if (searchResultSplit[0] == "{\"Title\"")
+            //{ 
+            //    JObject obj = JObject.Parse(searchResult);
+            //    _OmdbSearchResults.Add(new OmdbSearchResult((string)obj["Title"], (string)obj["Year"], (string)obj["imdbID"]));
+            //    SearchStatus = "Found 1 movie.";
+
+            //}
+            //else if (searchResultSplit[0] == "{\"Search\"")
+            //{
+            //    string searchResultTrimmed = "[" + searchResult.Split('[', ']')[1] +"]";
+
+            //    JSonHelper jsonHelper = new JSonHelper();
+            //    OmdbSearchResults = jsonHelper.ConvertJSonToObject<ObservableCollection<OmdbSearchResult>>(searchResultTrimmed);
+            //    SearchStatus = "Found " + _OmdbSearchResults.Count + " movies.";
+
+            //    if (_OmdbSearchResults == null)
+            //    {
+            //        Console.WriteLine("Fuck observablecollection is null");
+            //    }
+
+            //}
+            //else
+            //{
+            //    Console.WriteLine("no valid results");
+            //    SearchStatus = "No results found: " + searchResult;
+            //}
 
         }
 

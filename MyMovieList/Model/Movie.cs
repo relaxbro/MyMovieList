@@ -22,27 +22,15 @@ namespace MyMovieList
         {
             this.LoadDataWithID(ID);
         }
-        //public Movie(string jsonData)
-        //{
-        //    this.parseData(jsonData);
-        //}
 
-        //private bool _FullData = false;
-        //public bool FullData
-        //{
-        //    get { return _FullData; }
-        //}
 
+        #region Properties
         private string _Title;
         public string Title {
             get { return _Title; }
             set
             {
                 _Title = value;
-                //if (MovieChanged != null)
-                //{
-                //    MovieChanged(this, new ModelChangedEventArgs { OldValue = _Title, NewValue = value});
-                //}
             }
         }
 
@@ -53,10 +41,6 @@ namespace MyMovieList
             {
                 _Seen = value;
                 OnPropertyChanged("Seen");
-                //if (MovieChanged != null)
-                //{
-                //    MovieChanged(this, new ModelChangedEventArgs { OldValue = _Seen, NewValue = value });
-                //}
             }
         }
 
@@ -86,7 +70,30 @@ namespace MyMovieList
         public string MyRating
         {
             get { return _MyRating; }
-            set { _MyRating = value; }
+            set
+            {
+                _MyRating = value;
+                OnPropertyChanged("MyRating");
+            }
+        }
+
+        public int MyRatingInt
+        {
+            get
+            {
+                if (MyRating == "N/A")
+                {
+                    return 0;
+                }
+                else
+                {
+                    return int.Parse(MyRating);
+                }
+            }
+            set
+            {
+                MyRating = value.ToString();
+            }
         }
 
         private string _MyComment = "No comments yet.";
@@ -179,7 +186,14 @@ namespace MyMovieList
         public string PosterLink
         {
             get { return _PosterLink; }
-            set { _PosterLink = value; }
+            set
+            {
+                if (value == "N/A")
+                {
+                    return;
+                }
+                _PosterLink = value;
+            }
         }
 
         private string _Language = "N/A";
@@ -209,6 +223,113 @@ namespace MyMovieList
             get { return _imdbRating; }
             set { _imdbRating = value; }
         }
+
+        public double imdbRatingDouble
+        {
+            get
+            {
+                if (imdbRating == "N/A")
+                {
+                    return 0.0;
+                }
+                return Convert.ToDouble(imdbRating);
+            }
+        }
+
+        private string _Metascore = "N/A";
+        public string Metascore
+        {
+            get { return _Metascore; }
+            set { _Metascore = value; }
+        }
+
+        private string _imdbVotes = "N/A";
+        public string imdbVotes
+        {
+            get { return _imdbVotes; }
+            set { _imdbVotes = value; }
+        }
+
+        private string _tomateMeter = "N/A";
+        public string tomatoMeter
+        {
+            get { return _tomateMeter + " / 100"; }
+            set { _tomateMeter= value; }
+        }
+        private string _tomatoRating = "N/A";
+        public string tomatoRating
+        {
+            get { return _tomatoRating + " / 10"; }
+            set { _tomatoRating= value; }
+        }
+        private string _tomatoReviews = "N/A";
+        public string tomatoReviews
+        {
+            get { return _tomatoReviews; }
+            set { _tomatoReviews= value; }
+        }
+        private string _tomatoFresh = "N/A";
+        public string tomatoFresh
+        {
+            get { return _tomatoFresh; }
+            set { _tomatoFresh = value; }
+        }
+        private string _tomatoRotten = "N/A";
+        public string tomatoRotten
+        {
+            get { return _tomatoRotten; }
+            set { _tomatoRotten = value; }
+        }
+
+        private string _tomatoConsensus = "N/A";
+        public string tomatoConsensus
+        {
+            get { return _tomatoConsensus; }
+            set { _tomatoConsensus = value; }
+        }
+
+        private string _tomatoUserMeter = "N/A";
+        public string tomatoUserMeter
+        {
+            get { return _tomatoUserMeter + " / 100"; }
+            set { _tomatoUserMeter = value; }
+        }
+
+        private string _tomatoUserRating = "N/A";
+        public string tomatoUserRating
+        {
+            get { return _tomatoUserRating + " / 5"; }
+            set { _tomatoUserRating= value; }
+        }
+
+        private string _tomatoUserReviews = "N/A";
+        public string tomatoUserReviews
+        {
+            get { return _tomatoUserReviews; }
+            set { _tomatoUserReviews = value; }
+        }
+
+        private string _DVD = "N/A";
+        public string DVD
+        {
+            get { return _DVD; }
+            set { _DVD = value; }
+        }
+
+        private string _BoxOffice = "N/A";
+        public string BoxOffice
+        {
+            get { return _BoxOffice; }
+            set { _BoxOffice = value; }
+        }
+
+        private string _Production = "N/A";
+        public string Production
+        {
+            get { return _Production; }
+            set { _Production = value; }
+        }
+        #endregion
 
 
         public void LoadDataWithID(string ID)
@@ -246,9 +367,20 @@ namespace MyMovieList
             this.Country = (string)obj["Country"];
             this.Awards = (string)obj["Awards"];
             this.imdbRating = (string)obj["imdbRating"];
-            System.Console.WriteLine("aids " + (string)obj["tomatoMeter"]);
-            System.Console.WriteLine("aids " + (string)obj["asdfasdf"]);
-            System.Console.WriteLine("-----------------------------------------");
+            this.Metascore = (string)obj["Metascore"];
+            this.imdbVotes = (string)obj["imdbVotes"];
+            this.tomatoMeter = (string)obj["tomatoMeter"];
+            this.tomatoRating = (string)obj["tomatoRating"];
+            this.tomatoReviews = (string)obj["tomatoReviews"];
+            this.tomatoFresh = (string)obj["tomatoFresh"];
+            this.tomatoRotten= (string)obj["tomatoRotten"];
+            this.tomatoConsensus = (string)obj["tomatoConsensus"];
+            this.tomatoUserMeter = (string)obj["tomatoUserMeter"];
+            this.tomatoUserRating = (string)obj["tomatoUserRating"];
+            this.tomatoUserReviews = (string)obj["tomatoUserReviews"];
+            this.DVD = (string)obj["DVD"];
+            this.BoxOffice = (string)obj["BoxOffice"];
+            this.Production= (string)obj["Production"];
         }
 
         private void OnPropertyChanged(string propertyName)
@@ -264,17 +396,5 @@ namespace MyMovieList
                 changed(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-
-        //public void parsePartialData(string jsonData)
-        //{
-        //    JObject obj = JObject.Parse(jsonData);
-
-        //    this.Title = (string)obj["Title"];
-        //    this.Year = (string)obj["Year"];
-        //    this.imdbID = (string)obj["imdbID"];
-        //}
-
-        //public delegate void MovieChangedEvent(object sender, ModelChangedEventArgs e);
-        //public event MovieChangedEvent MovieChanged;
     }
 }

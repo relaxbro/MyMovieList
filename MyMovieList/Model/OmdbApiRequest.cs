@@ -34,7 +34,7 @@ namespace MyMovieList.Model
 
         public string RequestWithSearch(string search)
         {
-            string URLfull = URLBase + "s=" + search + "&r=json";
+            string URLfull = URLBase + "s=" + search + "&type=movie&r=json";
             //string URLfull = URLBase + 
             WebRequest request = WebRequest.Create(URLfull);
             WebResponse response = request.GetResponse();

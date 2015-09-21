@@ -18,19 +18,21 @@ namespace MyMovieList.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private ICollectionView _movieCollectionView;
+        private ICollectionView _genresCollectionView;
         private string currentSaveFileName;
+        private List<string> _SortByListTerms;
 
         public MainViewModel()
         {
-            //_CurrentMovies.Add(_CurrentMovie);
             Console.WriteLine("creating new MainViewModel");
-            // connect the icollectionview to observable collection
+            // connect the icollectionview to observable collection movie
             _movieCollectionView = CollectionViewSource.GetDefaultView(Movies);
+            // connect the icollectionview to the observable collection genre
+            _genresCollectionView = CollectionViewSource.GetDefaultView(Genres);
+            Genres.Add("All");
+            
             // sort according to title
             _movieCollectionView.SortDescriptions.Add(new SortDescription("Title", ListSortDirection.Ascending));
-            // create filter for showing seen and not seen movies
-            //_movieCollectionView.Filter = ShowSeenAndNotSeenFilter;
-            //_movieCollectionView.Filter = SearchInListFilter;
             // create filter to filter the collection
             _movieCollectionView.Filter = FullFilter;
 
@@ -41,16 +43,104 @@ namespace MyMovieList.ViewModel
             DataStorage.Movies.Add(new Movie("tt0330373"));
             DataStorage.Movies.Add(new Movie("tt0417741"));
             DataStorage.Movies.Add(new Movie("tt0304141"));
+
+            //for (int i = 100; i < 150; i++)
+            //{
+            //    string movieTits = "tt0344" + i.ToString();
+            //    Console.WriteLine(movieTits);
+            //    DataStorage.Movies.Add(new Movie(movieTits));
+            //}
+
+            DataStorage.UpdateGenresFull();
+
+            // Not elegant
+            _SortByListTerms = new List<string>();
+            SortByListTerms.Add("Title asc");
+            SortByListTerms.Add("Title desc");
+            SortByListTerms.Add("IMDB desc");
+            SortByListTerms.Add("IMDB asc");
+            SortByListTerms.Add("My rating desc");
+            SortByListTerms.Add("My rating asc");
+            SortByListTerms.Add("Year desc");
+            SortByListTerms.Add("Year asc");
         }
+
+        #region Sort Collection
+        private void SortCollection()
+        {
+            // ugly AF
+            if (SortTerm == "Title asc")
+            {
+                _movieCollectionView.SortDescriptions[0] = new SortDescription("Title", ListSortDirection.Ascending);
+            }
+            else if (SortTerm == "Title desc")
+            {
+                _movieCollectionView.SortDescriptions[0] = new SortDescription("Title", ListSortDirection.Descending);
+            }
+            else if (SortTerm == "IMDB desc")
+            {
+                _movieCollectionView.SortDescriptions[0] = new SortDescription("imdbRatingDouble", ListSortDirection.Descending);
+            }
+            else if (SortTerm == "IMDB asc")
+            {
+                _movieCollectionView.SortDescriptions[0] = new SortDescription("imdbRatingDouble", ListSortDirection.Ascending);
+            }
+            else if (SortTerm == "My rating desc")
+            {
+                _movieCollectionView.SortDescriptions[0] = new SortDescription("MyRatingInt", ListSortDirection.Descending);
+            }
+            else if (SortTerm == "My rating asc")
+            {
+                _movieCollectionView.SortDescriptions[0] = new SortDescription("MyRatingInt", ListSortDirection.Descending);
+            }
+            else if (SortTerm == "Year desc")
+            {
+                _movieCollectionView.SortDescriptions[0] = new SortDescription("Year", ListSortDirection.Descending);
+            }
+            else if (SortTerm == "Year asc")
+            {
+                _movieCollectionView.SortDescriptions[0] = new SortDescription("Year", ListSortDirection.Ascending);
+            }
+        }
+
+        private string _SortTerm = "Title asc";
+        public string SortTerm
+        {
+            get { return _SortTerm; }
+            set
+            {
+                _SortTerm = value;
+                SortCollection();
+            }
+        }
+
+        public List<string> SortByListTerms
+        {
+            get { return _SortByListTerms; }
+        }
+        #endregion
 
         #region FilterForCollection
         private bool FullFilter(object item)
         {
-            if (SearchInListFilter(item) && ShowSeenAndNotSeenFilter(item))
+            if (SearchInListFilter(item) && ShowSeenAndNotSeenFilter(item) && GenreFilter(item))
             {
                 return true;
             }
             return false;
+        }
+
+        private bool GenreFilter(object item)
+        {
+            if (SelectedGenre == "All")
+            {
+                return true;
+            }
+            else
+            {
+                Movie movie = item as Movie;
+                return movie.Genre.Contains(SelectedGenre);
+            }
         }
 
         private bool SearchInListFilter(object item)
@@ -92,6 +182,7 @@ namespace MyMovieList.ViewModel
         }
         #endregion
 
+        #region Properties
         public ICollectionView MovieCollectionView
         {
             get
@@ -113,6 +204,20 @@ namespace MyMovieList.ViewModel
             }
         }
 
+        public ICollectionView GenresCollectionView
+        {
+            get { return _genresCollectionView; }
+        }
+
+        public ObservableCollection<string> Genres
+        {
+            get { return DataStorage.Genres; }
+            set
+            {
+                onPropertyChanged("Genres");
+            }
+        }
+
         public Movie CurrentMovie
         {
             get
@@ -126,7 +231,7 @@ namespace MyMovieList.ViewModel
             }
         }
 
-        private Movie _SelectedMovie;
+        private Movie _SelectedMovie = new Movie();
         public Movie SelectedMovie
         {
             get { return _SelectedMovie; }
@@ -143,6 +248,19 @@ namespace MyMovieList.ViewModel
                     onPropertyChanged("SelectedMovie");
                     StatusString = "Selected movie: " + value.Title;
                 }
+            }
+        }
+
+        private string _SelectedGenre = "All";
+        public string SelectedGenre
+        {
+            get { return _SelectedGenre; }
+            set
+            {
+                _SelectedGenre = value;
+                onPropertyChanged("SelectedGenre");
+                StatusString = "Selected genre: " + SelectedGenre;
+                _movieCollectionView.Refresh();
             }
         }
 
@@ -192,7 +310,7 @@ namespace MyMovieList.ViewModel
                 onPropertyChanged("StatusString");
             }
         }
-
+        #endregion
 
         #region UpdateMovieAsSeen
         // ICommand to mark movie as seen
@@ -222,6 +340,7 @@ namespace MyMovieList.ViewModel
                 SelectedMovie.LastSeen = currentDate;
             }
 
+            _movieCollectionView.Refresh();
             StatusString = "Updated movie";
         }
 
@@ -261,6 +380,8 @@ namespace MyMovieList.ViewModel
                 Console.WriteLine("movie not in collection. adding");
                 StatusString = "Added to list: " + SelectedMovie.Title;
                 Movies.Add(SelectedMovie);
+                DataStorage.UpdateGenres(SelectedMovie);
+                onPropertyChanged("Genres");
                 
             }
             else

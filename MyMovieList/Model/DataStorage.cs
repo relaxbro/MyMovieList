@@ -27,10 +27,15 @@ namespace MyMovieList.Model
             set { _CurrentMovie = value; }
         }
 
+        private static ObservableCollection<string> _Genres = new ObservableCollection<string>();
+        public static ObservableCollection<string> Genres
+        {
+            get { return _Genres; }
+        }
+
         #region ReadAndSaveFile
         public static void SaveListToFile(string fileName)
         {
-            Console.WriteLine("inside SaveListToFile");
             if (fileName == null)
             {
                 return;
@@ -45,14 +50,11 @@ namespace MyMovieList.Model
                 {
                     serializer.Serialize(writer, mov);
                     sw.Write(Environment.NewLine);
-                    //string output = JsonConvert.SerializeObject(mov);
-                    //Console.WriteLine(output);
                 }
         }
 
         public static void OpenListFromFile(string fileName)
         {
-            Console.WriteLine("inside OpenListFromFile");
             if (fileName == null)
             {
                 return;
@@ -63,6 +65,13 @@ namespace MyMovieList.Model
             {
                 Movies.RemoveAt(i);
             }
+            for (int i = Genres.Count - 1; i >= 0; i--)
+            {
+                Genres.RemoveAt(i);
+            }
+
+            // set first item in genres
+            Genres.Add("All");
 
             // read from file with deserialize json
             using (StreamReader file = File.OpenText(fileName))
@@ -75,12 +84,8 @@ namespace MyMovieList.Model
                     JsonSerializer serializer = new JsonSerializer();
                     Movie movie = serializer.Deserialize<Movie>(reader);
                     Movies.Add(movie);
+                    UpdateGenres(movie.Genre);
                 }
-
-                //JsonSerializer serializer = new JsonSerializer();
-                //Movie movie = (Movie)serializer.Deserialize(file, typeof(Movie));
-                //Console.WriteLine(movie.Title);
-                //Movies.Add(movie);
             }
         }
         #endregion
@@ -142,6 +147,77 @@ namespace MyMovieList.Model
                         return;
                     }
                 }
+            }
+        }
+
+        private static bool GenreIsInList(string genre)
+        {
+            return Genres.Any(s => s.Contains(genre.Trim()));
+        }
+
+        public static void UpdateGenres(string genre)
+        {
+            bool genraAdded = false;
+            string[] s = genre.Split(',');
+            foreach (var gen in s)
+            {
+                if (!GenreIsInList(gen))
+                {
+                    Genres.Add(gen);
+                    genraAdded = true;
+                }
+            }
+            if (genraAdded)
+            {
+                SortGenre();
+            }
+        }
+
+        public static void UpdateGenres(Movie movie)
+        {
+            bool genreAdded = false;
+            string[] s = movie.Genre.Split(',');
+            foreach (var gen in s)
+            {
+                if (!GenreIsInList(gen))
+                {
+                    Genres.Add(gen.Trim());
+                    genreAdded = true;
+                }
+            }
+            if (genreAdded)
+            {
+                SortGenre();
+            }
+        }
+
+        public static void UpdateGenresFull()
+        {
+            foreach (var mov in Movies)
+            {
+                string[] s = mov.Genre.Split(',');
+                foreach (var gen in s)
+                {
+                    if (!GenreIsInList(gen))
+                    {
+                        Genres.Add(gen.Trim());
+                    }
+                }
+            }
+            SortGenre();
+        }
+
+        private static void SortGenre()
+        {
+            List<string> tempSort = new List<string>();
+            for (int i = 1; i < Genres.Count; i++)
+            {
+                tempSort.Add(Genres[i]);
+            }
+            tempSort.Sort();
+            for(int i = 0; i < tempSort.Count; i++)
+            {
+                Genres[i + 1] = tempSort[i];
             }
         }
     }
