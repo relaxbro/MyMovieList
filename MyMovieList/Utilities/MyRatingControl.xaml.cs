@@ -47,7 +47,7 @@ namespace MyMovieList.Utilities
         private static void OnValueChanged(DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
-            System.Console.WriteLine("inside IsMyRatingEnabled onvaluechanged");
+            //System.Console.WriteLine("inside IsMyRatingEnabled onvaluechanged");
             return;
         }
         #endregion

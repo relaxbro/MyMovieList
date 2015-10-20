@@ -25,7 +25,7 @@ namespace MyMovieList
 
 
         #region Properties
-        private string _Title;
+        private string _Title = "Dummy movie";
         public string Title {
             get { return _Title; }
             set
@@ -66,6 +66,17 @@ namespace MyMovieList
             }
         }
 
+        private string _DateAddedToList = "N/A";
+        public string DateAddedToList
+        {
+            get { return _DateAddedToList; }
+            set
+            {
+                _DateAddedToList = value;
+                OnPropertyChanged("DateAddedToList");
+            }
+        }
+
         private string _MyRating = "N/A";
         public string MyRating
         {
@@ -77,6 +88,7 @@ namespace MyMovieList
             }
         }
 
+        [Newtonsoft.Json.JsonIgnore]
         public int MyRatingInt
         {
             get
@@ -224,6 +236,7 @@ namespace MyMovieList
             set { _imdbRating = value; }
         }
 
+        [Newtonsoft.Json.JsonIgnore]
         public double imdbRatingDouble
         {
             get
@@ -232,7 +245,8 @@ namespace MyMovieList
                 {
                     return 0.0;
                 }
-                return Convert.ToDouble(imdbRating);
+                //return Convert.ToDouble(imdbRating);
+                return double.Parse(imdbRating, System.Globalization.CultureInfo.InvariantCulture);
             }
         }
 
@@ -253,27 +267,43 @@ namespace MyMovieList
         private string _tomateMeter = "N/A";
         public string tomatoMeter
         {
-            get { return _tomateMeter + " / 100"; }
+            get { return _tomateMeter; }
             set { _tomateMeter= value; }
         }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public string tomatoMeterForView
+        {
+            get { return _tomateMeter + " / 100"; }
+        }
+
         private string _tomatoRating = "N/A";
         public string tomatoRating
         {
-            get { return _tomatoRating + " / 10"; }
+            get { return _tomatoRating; }
             set { _tomatoRating= value; }
         }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public string tomatoRatingForView
+        {
+            get { return _tomatoRating + " / 10"; }
+        }
+
         private string _tomatoReviews = "N/A";
         public string tomatoReviews
         {
             get { return _tomatoReviews; }
             set { _tomatoReviews= value; }
         }
+
         private string _tomatoFresh = "N/A";
         public string tomatoFresh
         {
             get { return _tomatoFresh; }
             set { _tomatoFresh = value; }
         }
+
         private string _tomatoRotten = "N/A";
         public string tomatoRotten
         {
@@ -291,15 +321,27 @@ namespace MyMovieList
         private string _tomatoUserMeter = "N/A";
         public string tomatoUserMeter
         {
-            get { return _tomatoUserMeter + " / 100"; }
+            get { return _tomatoUserMeter; }
             set { _tomatoUserMeter = value; }
+        }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public string tomatoUserMeterForView
+        {
+            get { return _tomatoUserMeter + " / 100"; }
         }
 
         private string _tomatoUserRating = "N/A";
         public string tomatoUserRating
         {
-            get { return _tomatoUserRating + " / 5"; }
+            get { return _tomatoUserRating; }
             set { _tomatoUserRating= value; }
+        }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public string tomatoUserRatingForView
+        {
+            get { return _tomatoUserRating + " / 5"; }
         }
 
         private string _tomatoUserReviews = "N/A";
@@ -344,6 +386,18 @@ namespace MyMovieList
             {
                 return;
             }
+
+            //System.Console.WriteLine("\n\n" + jsonData);
+            //System.Console.ReadKey();
+            //JObject obj;
+            //try
+            //{
+            //    obj = JObject.Parse(jsonData);
+            //}
+            //catch (Exception e)
+            //{
+            //    return;
+            //}
 
             JObject obj = JObject.Parse(jsonData);
 

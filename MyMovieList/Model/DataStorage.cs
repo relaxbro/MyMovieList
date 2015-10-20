@@ -42,7 +42,9 @@ namespace MyMovieList.Model
             }
 
             JsonSerializer serializer = new JsonSerializer();
+            //new JsonSerializerSettings() {DefaultValueHandling = DefaultValueHandling.Ignore };
             serializer.NullValueHandling = NullValueHandling.Ignore;
+            
 
             using (StreamWriter sw = new StreamWriter(fileName))
             using (JsonWriter writer = new JsonTextWriter(sw))
@@ -55,23 +57,12 @@ namespace MyMovieList.Model
 
         public static void OpenListFromFile(string fileName)
         {
-            if (fileName == null)
+            if (String.IsNullOrEmpty(fileName))
             {
                 return;
             }
-            
-            // remove all from observable collection
-            for (int i = Movies.Count - 1; i >= 0; i--)
-            {
-                Movies.RemoveAt(i);
-            }
-            for (int i = Genres.Count - 1; i >= 0; i--)
-            {
-                Genres.RemoveAt(i);
-            }
 
-            // set first item in genres
-            Genres.Add("All");
+            EmptyStorage();
 
             // read from file with deserialize json
             using (StreamReader file = File.OpenText(fileName))
@@ -87,6 +78,34 @@ namespace MyMovieList.Model
                     UpdateGenres(movie.Genre);
                 }
             }
+        }
+
+        public static void EmptyStorage()
+        {
+            // fucks up the binding
+            //Movies = new ObservableCollection<Movie>();
+            //_Genres = new ObservableCollection<string>();
+            //Genres.Add("All");
+
+            //remove all movies from observable collection
+            for (int i = Movies.Count - 1; i >= 0; i--)
+            {
+                //Console.WriteLine("removing " + Movies[i].Title);
+                Movies.RemoveAt(i);
+            }
+
+            //remove all genres from observable collection. keep the first "All".
+            for (int i = Genres.Count - 1; i >= 0; i--)
+            {
+                //if (Genres[i] == "All")
+                //{
+                //    continue;
+                //}
+                //Console.WriteLine("removing " + Genres[i]);
+                Genres.RemoveAt(i);
+            }
+
+            Genres.Add("All");
         }
         #endregion
 
@@ -163,13 +182,13 @@ namespace MyMovieList.Model
             {
                 if (!GenreIsInList(gen))
                 {
-                    Genres.Add(gen);
+                    Genres.Add(gen.Trim());
                     genraAdded = true;
                 }
             }
             if (genraAdded)
             {
-                SortGenre();
+                SortGenres();
             }
         }
 
@@ -187,7 +206,7 @@ namespace MyMovieList.Model
             }
             if (genreAdded)
             {
-                SortGenre();
+                SortGenres();
             }
         }
 
@@ -204,10 +223,10 @@ namespace MyMovieList.Model
                     }
                 }
             }
-            SortGenre();
+            SortGenres();
         }
 
-        private static void SortGenre()
+        private static void SortGenres()
         {
             List<string> tempSort = new List<string>();
             for (int i = 1; i < Genres.Count; i++)

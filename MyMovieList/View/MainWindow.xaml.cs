@@ -40,24 +40,12 @@ namespace MyMovieList
             vm.SearchForNew(this);
         }
 
-        private void NewFileButtonClick(object sender, RoutedEventArgs e)
+        private void WindowClose(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            vm.NewFile();
+            //System.Console.WriteLine("Inside WindowClose()");
+            e.Cancel = true;
+            vm.ExitApplication();
         }
 
-        private void OpenFileButtonClick(object sender, RoutedEventArgs e)
-        {
-            vm.OpenFile();
-        }
-
-        private void SaveFileClick(object sender, RoutedEventArgs e)
-        {
-            vm.SaveFile();
-        }
-
-        private void SaveFileAsClick(object sender, RoutedEventArgs e)
-        {
-            vm.SaveFileAs();
-        }
     }
 }

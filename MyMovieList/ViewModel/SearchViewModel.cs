@@ -18,25 +18,26 @@ namespace MyMovieList.ViewModel
     public class SearchViewModel : ViewModelBase
     {
         ObservableCollection<OmdbSearchResult> _OmdbSearchResults = new ObservableCollection<OmdbSearchResult>();
-        
+        MessageBoxManager _messageBoxManager = new MessageBoxManager();
+
         public SearchViewModel()
         {
             System.Console.WriteLine("creating new searchviewmodel");
         }
 
 
-        public ObservableCollection<Movie> Movies
-        {
-            get
-            {
-                return DataStorage.Movies;
-            }
-            set
-            {
-                DataStorage.Movies = value;
-                onPropertyChanged("Movies");
-            }
-        }
+        //public ObservableCollection<Movie> Movies
+        //{
+        //    get
+        //    {
+        //        return DataStorage.Movies;
+        //    }
+        //    set
+        //    {
+        //        DataStorage.Movies = value;
+        //        onPropertyChanged("Movies");
+        //    }
+        //}
 
         public Movie CurrentMovie
         {
@@ -243,7 +244,28 @@ namespace MyMovieList.ViewModel
             }
             else
             {
-                CurrentMovie = new Movie(SelectedResult.imdbID);
+                try
+                {
+                    CurrentMovie = new Movie(SelectedResult.imdbID);
+                }
+                catch (Exception e)
+                {
+                    //System.Console.WriteLine(e);
+                    var msgBoxResult = _messageBoxManager.ShowMessageBox(
+                                                    "Failed parsing Json. Data might be corrupt. Go back to main window?",
+                                                    "Confirmation",
+                                                    System.Windows.MessageBoxButton.YesNo);
+
+                    if (msgBoxResult == System.Windows.MessageBoxResult.Yes)
+                    {
+                        CloseWindowAction();
+                    }
+                    else if (msgBoxResult == System.Windows.MessageBoxResult.No)
+                    {
+                        return;
+                    }
+                    return;
+                }
                 //Movies.Add(CurrentMovie);
             }
 

@@ -21,35 +21,45 @@ namespace MyMovieList.ViewModel
         private ICollectionView _genresCollectionView;
         private string currentSaveFileName;
         private List<string> _SortByListTerms;
+        private static Random rnd = new Random();
+        private SettingsHandler settingsHandler = new SettingsHandler();
+
+        MessageBoxManager _messageBoxManager = new MessageBoxManager();
 
         public MainViewModel()
         {
-            Console.WriteLine("creating new MainViewModel");
+            settingsHandler.LoadSettings();
+            
+            if (settingsHandler.OpenPreviousOnStartup)
+            {
+                DataStorage.OpenListFromFile(settingsHandler.PreviousFile);
+                currentSaveFileName = settingsHandler.PreviousFile;
+                StatusString = "File loaded: " + currentSaveFileName;
+                GetRandomMovie();
+            }
+
             // connect the icollectionview to observable collection movie
             _movieCollectionView = CollectionViewSource.GetDefaultView(Movies);
             // connect the icollectionview to the observable collection genre
             _genresCollectionView = CollectionViewSource.GetDefaultView(Genres);
-            Genres.Add("All");
+            
+            if (Genres.Count == 0)
+            {
+                Genres.Add("All");
+            }
             
             // sort according to title
             _movieCollectionView.SortDescriptions.Add(new SortDescription("Title", ListSortDirection.Ascending));
             // create filter to filter the collection
             _movieCollectionView.Filter = FullFilter;
 
-            DataStorage.Movies.Add(new Movie("tt3832914"));
-            DataStorage.Movies.Add(new Movie("tt0478970"));
-            DataStorage.Movies.Add(new Movie("tt0270919"));
-            DataStorage.Movies.Add(new Movie("tt0241527"));
-            DataStorage.Movies.Add(new Movie("tt0330373"));
-            DataStorage.Movies.Add(new Movie("tt0417741"));
-            DataStorage.Movies.Add(new Movie("tt0304141"));
-
-            //for (int i = 100; i < 150; i++)
-            //{
-            //    string movieTits = "tt0344" + i.ToString();
-            //    Console.WriteLine(movieTits);
-            //    DataStorage.Movies.Add(new Movie(movieTits));
-            //}
+            //DataStorage.Movies.Add(new Movie("tt3832914"));
+            //DataStorage.Movies.Add(new Movie("tt0478970"));
+            //DataStorage.Movies.Add(new Movie("tt0270919"));
+            //DataStorage.Movies.Add(new Movie("tt0241527"));
+            //DataStorage.Movies.Add(new Movie("tt0330373"));
+            //DataStorage.Movies.Add(new Movie("tt0417741"));
+            //DataStorage.Movies.Add(new Movie("tt0304141"));
 
             DataStorage.UpdateGenresFull();
 
@@ -91,7 +101,7 @@ namespace MyMovieList.ViewModel
             }
             else if (SortTerm == "My rating asc")
             {
-                _movieCollectionView.SortDescriptions[0] = new SortDescription("MyRatingInt", ListSortDirection.Descending);
+                _movieCollectionView.SortDescriptions[0] = new SortDescription("MyRatingInt", ListSortDirection.Ascending);
             }
             else if (SortTerm == "Year desc")
             {
@@ -123,6 +133,7 @@ namespace MyMovieList.ViewModel
         #region FilterForCollection
         private bool FullFilter(object item)
         {
+            onPropertyChanged("NumberOfFilteredMovies");
             if (SearchInListFilter(item) && ShowSeenAndNotSeenFilter(item) && GenreFilter(item))
             {
                 return true;
@@ -136,9 +147,18 @@ namespace MyMovieList.ViewModel
             {
                 return true;
             }
+            else if (String.IsNullOrEmpty(SelectedGenre)){
+                return true;
+            }
             else
             {
+                //if (string.IsNullOrEmpty(SelectedGenre))
+                //{
+                //    SelectedGenre = "All";
+                //    return true;
+                //}
                 Movie movie = item as Movie;
+                //Console.WriteLine("Selected genre; " + SelectedGenre);
                 return movie.Genre.Contains(SelectedGenre);
             }
         }
@@ -183,11 +203,28 @@ namespace MyMovieList.ViewModel
         #endregion
 
         #region Properties
+        private bool _ShuttingDown = false;
+        private bool _HasUnsavedChanges = false;
+        public bool HasUnsavedChanges
+        {
+            get { return _HasUnsavedChanges; }
+            set { _HasUnsavedChanges = value; }
+        }
+
         public ICollectionView MovieCollectionView
         {
             get
             {
                 return _movieCollectionView;
+            }
+        }
+
+        public int NumberOfFilteredMovies
+        {
+            get
+            { 
+                System.Console.WriteLine("filtered count " + MovieCollectionView.OfType<Movie>().Count());
+                return MovieCollectionView.OfType<Movie>().Count();
             }
         }
 
@@ -261,6 +298,7 @@ namespace MyMovieList.ViewModel
                 onPropertyChanged("SelectedGenre");
                 StatusString = "Selected genre: " + SelectedGenre;
                 _movieCollectionView.Refresh();
+                UpdateCounter();
             }
         }
 
@@ -273,6 +311,7 @@ namespace MyMovieList.ViewModel
                 _ShowSeen = value;
                 onPropertyChanged("ShowSeen");
                 _movieCollectionView.Refresh();
+                UpdateCounter();
             }
         }
 
@@ -285,6 +324,7 @@ namespace MyMovieList.ViewModel
                 _ShowNotSeen = value;
                 onPropertyChanged("ShowUnseen");
                 _movieCollectionView.Refresh();
+                UpdateCounter();
             }
         }
 
@@ -297,6 +337,7 @@ namespace MyMovieList.ViewModel
                 _SearchInListString = value;
                 onPropertyChanged("SearchInListString");
                 _movieCollectionView.Refresh();
+                UpdateCounter();
             }
         }
 
@@ -312,6 +353,12 @@ namespace MyMovieList.ViewModel
         }
         #endregion
 
+        private void UpdateCounter()
+        {
+            onPropertyChanged("NumberOfFilteredMovies");
+            return;
+        }
+
         #region UpdateMovieAsSeen
         // ICommand to mark movie as seen
         public ICommand UpdateMovieAsSeen
@@ -324,10 +371,10 @@ namespace MyMovieList.ViewModel
 
         public void ExecuteUpdateMovieAsSeen(object parameter)
         {
-            Console.WriteLine("inside executeUpdateMovieAsSeen");
+            //Console.WriteLine("inside executeUpdateMovieAsSeen");
             //SelectedMovie.Seen = true;
 
-            string currentDate = DateTime.Today.ToString("yyyy/MM/dd");
+            string currentDate = DateTime.Today.ToString("yyyy.MM.dd");
 
             if (!SelectedMovie.Seen)
             {
@@ -341,6 +388,7 @@ namespace MyMovieList.ViewModel
             }
 
             _movieCollectionView.Refresh();
+            HasUnsavedChanges = true;
             StatusString = "Updated movie";
         }
 
@@ -371,22 +419,21 @@ namespace MyMovieList.ViewModel
 
         public void ExecuteAddToList(object parameter)
         {
-            //Console.WriteLine("----------- " + CurrentMovie.Title);
-            Console.WriteLine("inside executeAddtoList");
-            Console.WriteLine(SelectedMovie.Title);
-            //onPropertyChanged("CurrentMovie");
             if (!DataStorage.MovieExistsInCollection(SelectedMovie))
             {
-                Console.WriteLine("movie not in collection. adding");
+                //Console.WriteLine("movie not in collection. adding");
                 StatusString = "Added to list: " + SelectedMovie.Title;
+                SelectedMovie.DateAddedToList = DateTime.Today.ToString("yyyy.MM.dd");
                 Movies.Add(SelectedMovie);
+                HasUnsavedChanges = true;
                 DataStorage.UpdateGenres(SelectedMovie);
                 onPropertyChanged("Genres");
+                UpdateCounter();
                 
             }
             else
             {
-                Console.WriteLine("movie allready in collection. not adding.");
+                //Console.WriteLine("movie allready in collection. not adding.");
             }
         }
         
@@ -443,6 +490,7 @@ namespace MyMovieList.ViewModel
         {
             //Console.WriteLine("inside ExecuteRemoveMovieFromList");
             DataStorage.RemoveMovieFromList(SelectedMovie);
+            UpdateCounter();
             StatusString = "Removed from list: " + SelectedMovie.Title;
         }
 
@@ -466,18 +514,51 @@ namespace MyMovieList.ViewModel
             }
         }
 
-        public void ExecuteOpenURL(object parameter)
+        private void ExecuteOpenURL(object parameter)
         {
             //Console.WriteLine("inside ExecuteOpenURL");
-            System.Diagnostics.Process.Start(SelectedMovie.imdbURL);
+            try
+            {
+                System.Diagnostics.Process.Start(SelectedMovie.imdbURL);
+            }
+            catch(Exception e)
+            {
+                System.Console.WriteLine(e);
+                return;
+            }
         }
 
-        public bool CanOpenURL(object parameter)
+        private bool CanOpenURL(object parameter)
         {
             if (SelectedMovie == null)
             {
                 return false;
             }
+            return true;
+        }
+        public ICommand OpenUrlGitHub
+        {
+            get
+            {
+                return new RelayCommand(ExecuteOpenUrlGitHub, CanOpenUrlGitHub);
+            }
+        }
+
+        private void ExecuteOpenUrlGitHub(object parameter)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start("https://github.com/relaxbro/MyMovieList");
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e);
+                return;
+            }
+        }
+
+        private bool CanOpenUrlGitHub(object parameter)
+        {
             return true;
         }
         #endregion
@@ -491,8 +572,46 @@ namespace MyMovieList.ViewModel
         }
 
         #region NewOpenAndSaveFile
-        public void NewFile()
+        #region NewFileCommand
+        public ICommand NewFileCommand
         {
+            get { return new RelayCommand(ExecuteNewFile, CanNewFile); }
+        }
+
+        private void ExecuteNewFile(object paramater)
+        {
+            NewFile();
+        }
+
+        private bool CanNewFile(object paramter) { return true; }
+
+        private void NewFile()
+        {
+            // check if current list has unsaved changes
+            if (HasUnsavedChanges)
+            {
+                var msgBoxResult = _messageBoxManager.ShowMessageBox(
+                                                    "Unsaved changes, save before creating new file?",
+                                                    "Confirmation",
+                                                    System.Windows.MessageBoxButton.YesNoCancel);
+                if (msgBoxResult == System.Windows.MessageBoxResult.Yes)
+                {
+                    SaveFile();
+                }
+                else if (msgBoxResult == System.Windows.MessageBoxResult.Cancel)
+                {
+                    return;
+                }
+                else if (msgBoxResult == System.Windows.MessageBoxResult.No)
+                {
+
+                }
+            }
+
+            // empty current list
+            DataStorage.EmptyStorage();
+            UpdateCounter();
+
             Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
             fileDialog.DefaultExt = ".json";
             fileDialog.CheckFileExists = false;
@@ -503,13 +622,48 @@ namespace MyMovieList.ViewModel
             if (result == true)
             {
                 currentSaveFileName = fileDialog.FileName;
-                Console.WriteLine("chosen file " + currentSaveFileName);
+                //Console.WriteLine("chosen file " + currentSaveFileName);
                 StatusString = "New list file: " + currentSaveFileName;
             }
         }
+        #endregion
 
-        public void OpenFile()
+        #region OpenFileCommand
+        public ICommand OpenFileCommand
         {
+            get { return new RelayCommand(ExecuteOpenFile, CanOpenFile); }
+        }
+
+        private void ExecuteOpenFile(object paramater)
+        {
+            OpenFile();
+        }
+
+        private bool CanOpenFile(object paramter) { return true; }
+
+        private void OpenFile()
+        {
+            // check if current list has unsaved changes
+            if (HasUnsavedChanges)
+            {
+                var msgBoxResult = _messageBoxManager.ShowMessageBox(
+                                                    "Unsaved changes, save before opening new file?",
+                                                    "Confirmation",
+                                                    System.Windows.MessageBoxButton.YesNoCancel);
+                if (msgBoxResult == System.Windows.MessageBoxResult.Yes)
+                {
+                    SaveFile();
+                }
+                else if (msgBoxResult == System.Windows.MessageBoxResult.Cancel)
+                {
+                    return;
+                }
+                else if (msgBoxResult == System.Windows.MessageBoxResult.No)
+                {
+
+                }
+            }
+
             Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
             fileDialog.DefaultExt = ".json";
             fileDialog.Filter = "JSON (*.json)|*.json|All files (*.*)|*.*";
@@ -518,13 +672,34 @@ namespace MyMovieList.ViewModel
             if (result == true)
             {
                 currentSaveFileName = fileDialog.FileName;
-                Console.WriteLine("chosen file " + currentSaveFileName);
                 DataStorage.OpenListFromFile(currentSaveFileName);
+                HasUnsavedChanges = false;
                 StatusString = "Current file: " + currentSaveFileName;
+                settingsHandler.PreviousFile = currentSaveFileName;
+                UpdateCounter();
+
+                if (SelectedMovie.Title == "Dummy movie")
+                {
+                    GetRandomMovie();
+                }
             }
         }
+        #endregion
 
-        public void SaveFile()
+        #region SaveFileCommand
+        public ICommand SaveFileCommand
+        {
+            get { return new RelayCommand(ExecuteSaveFile, CanSaveFile); }
+        }
+
+        private void ExecuteSaveFile(object paramater)
+        {
+            SaveFile();
+        }
+
+        private bool CanSaveFile(object paramter) { return true; }
+
+        private void SaveFile()
         {
             // check if currentSaveFileName is a correct file
             if (string.IsNullOrEmpty(currentSaveFileName))
@@ -534,11 +709,26 @@ namespace MyMovieList.ViewModel
             else
             {
                 DataStorage.SaveListToFile(currentSaveFileName);
+                HasUnsavedChanges = false;
                 StatusString = "Saved to file: " + currentSaveFileName;
             }
         }
+        #endregion
 
-        public void SaveFileAs()
+        #region NewFileCommand
+        public ICommand SaveFileAsCommand
+        {
+            get { return new RelayCommand(ExecuteSaveFileAs, CanSaveFileAs); }
+        }
+
+        private void ExecuteSaveFileAs(object paramater)
+        {
+            SaveFileAs();
+        }
+
+        private bool CanSaveFileAs(object paramter) { return true; }
+
+        private void SaveFileAs()
         {
             Microsoft.Win32.SaveFileDialog saveDialog = new Microsoft.Win32.SaveFileDialog();
             saveDialog.FileName = "MovieList";
@@ -550,17 +740,114 @@ namespace MyMovieList.ViewModel
             {
                 //string fileName = saveDialog.FileName;
                 currentSaveFileName = saveDialog.FileName;
-                Console.WriteLine("chosen file " + currentSaveFileName);
+                //Console.WriteLine("chosen file " + currentSaveFileName);
                 DataStorage.SaveListToFile(currentSaveFileName);
+                HasUnsavedChanges = false;
                 StatusString = "Saved to file: " + currentSaveFileName;
             }
+        }
+        #endregion
+        #endregion
+
+        #region Exit
+        public ICommand ExitApplicationCommand
+        {
+            get { return new RelayCommand(ExecuteExitApplication, CanExitApplication); }
+        }
+
+        private void ExecuteExitApplication(object parameter)
+        {
+            //System.Console.WriteLine("inside ExecuteExitApplication() start");
+            // to avoid getting the dialog twice. this because current.shutdown() fires event which is the same as exiting with red x
+            if (_ShuttingDown)
+            {
+                return;
+            }
+            settingsHandler.SaveSettings();
+            if (HasUnsavedChanges)
+            {
+                var msgBoxResult = _messageBoxManager.ShowMessageBox(
+                                                    "Unsaved changes, save before closing?",
+                                                    "Confirmation",
+                                                    System.Windows.MessageBoxButton.YesNoCancel);
+                if (msgBoxResult == System.Windows.MessageBoxResult.Yes)
+                {
+                    _ShuttingDown = true;
+                    SaveFile();
+                    System.Windows.Application.Current.Shutdown();
+                }
+                else if (msgBoxResult == System.Windows.MessageBoxResult.Cancel)
+                {
+                    return;
+                }
+                else if (msgBoxResult == System.Windows.MessageBoxResult.No)
+                {
+                    _ShuttingDown = true;
+                    System.Windows.Application.Current.Shutdown();
+                    return;
+                }
+            }
+            else
+            {
+                System.Windows.Application.Current.Shutdown();
+            }
+            //System.Console.WriteLine("inside ExecuteExitApplication() end");
+
+        }
+
+        private bool CanExitApplication(object paramater)
+        {
+            return true;
+        }
+
+        public void ExitApplication()
+        {
+            ExecuteExitApplication(null);
+        }
+        #endregion
+
+        #region GetRandomMovie
+        public ICommand SelectRandomMovieFromList
+        {
+            get { return new RelayCommand(ExecuteSelectRandomMovieFromList, CanSelectRandomMovieFromList); }
+        }
+
+        private void ExecuteSelectRandomMovieFromList(object parameter)
+        {
+            GetRandomMovie();
+        }
+
+        private bool CanSelectRandomMovieFromList(object parameter)
+        {
+            // check if current view is empty
+            if (MovieCollectionView.OfType<Movie>().Count() > 1)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void GetRandomMovie()
+        {   
+            // kinda ugly. hopefully there is a more efficient way to find random from filtered icollectionview
+            bool found = false;
+            int index = 0;
+            while (!found)
+            {
+                index = rnd.Next(Movies.Count);
+                if (FullFilter(Movies[index]) && (Movies[index].imdbID != SelectedMovie.imdbID))
+                {
+                    found = true;
+                }
+            }
+            SelectedMovie = Movies[index];
+            //SelectedMovie = Movies[rnd.Next(Movies.Count-1)];
+            StatusString = "Random movie: " + SelectedMovie.Title;
         }
         #endregion
 
         public object RecieveMessage(OnPropertyChangedMessage action)
         {
-            //Console.WriteLine("recieving message in mvm: " + action);
-            //Console.WriteLine("currentmovie: " + CurrentMovie.Title);
             SelectedMovie = CurrentMovie;
             return null;
         }

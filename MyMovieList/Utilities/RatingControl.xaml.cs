@@ -262,7 +262,7 @@ namespace MyMovieList.Utilities
         /// </summary>
         public static readonly DependencyProperty MaximumProperty =
             DependencyProperty.Register("Maximum", typeof(Int32), typeof(RatingControl),
-                new FrameworkPropertyMetadata((Int32)10));
+                new FrameworkPropertyMetadata((Int32)100));
 
         /// <summary>
         /// Gets or sets the Maximum property.  
@@ -282,7 +282,7 @@ namespace MyMovieList.Utilities
         /// </summary>
         public static readonly DependencyProperty MinimumProperty =
             DependencyProperty.Register("Minimum", typeof(Int32), typeof(RatingControl),
-                new FrameworkPropertyMetadata((Int32)1));
+                new FrameworkPropertyMetadata((Int32)0));
 
         /// <summary>
         /// Gets or sets the Minimum property.  

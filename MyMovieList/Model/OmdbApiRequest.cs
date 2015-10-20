@@ -18,7 +18,7 @@ namespace MyMovieList.Model
             string URLfull = URLBase + "i=" + imdbID + "&plot=full&r=json&tomatoes=true";
             WebRequest request = WebRequest.Create(URLfull);
             WebResponse response = request.GetResponse();
-            System.Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+            //System.Console.WriteLine(((HttpWebResponse)response).StatusDescription);
 
             Stream dataStream = response.GetResponseStream();
             StreamReader reader = new StreamReader(dataStream);
@@ -38,7 +38,7 @@ namespace MyMovieList.Model
             //string URLfull = URLBase + 
             WebRequest request = WebRequest.Create(URLfull);
             WebResponse response = request.GetResponse();
-            System.Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+            //System.Console.WriteLine(((HttpWebResponse)response).StatusDescription);
 
             Stream dataStream = response.GetResponseStream();
             StreamReader reader = new StreamReader(dataStream);

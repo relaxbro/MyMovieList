@@ -14,35 +14,60 @@
         WindowStartupLocation="CenterScreen"
         Top="{Binding Path=Window.Top, Mode=TwoWay}"
         Left="{Binding Path=Window.Left, Mode=TwoWay}"
-        WindowState="{Binding Path=Window.State, Mode=TwoWay}">
+        WindowState="{Binding Path=Window.State, Mode=TwoWay}"
+        
+        Closing="WindowClose">
 
     <Window.Resources>
         <!-- <vm:MainViewModel x:Key="vm" /> -->
     </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding Path=NewFileCommand}" />
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding Path=OpenFileCommand}" />
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding Path=SaveFileCommand}" />
+    </Window.InputBindings>
     
     <DockPanel>
 
         <!--Menu bar-->
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
-                <MenuItem Header="_New List" InputGestureText="Ctrl+N" Click="NewFileButtonClick" />
-                <MenuItem Header="_Open" InputGestureText="Ctrl+O" Click="OpenFileButtonClick" />
+                <MenuItem Header="_New List" InputGestureText="Ctrl+N" Command="{Binding Path=NewFileCommand}" />
+                <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding Path=OpenFileCommand}" />
                 <Separator />
-                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Click="SaveFileClick" />
-                <MenuItem Header="_Save as" Click="SaveFileAsClick" />
+                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="{Binding Path=SaveFileCommand}" />
+                <MenuItem Header="_Save as" Command="{Binding Path=SaveFileAsCommand}" />
                 <Separator />
-                <MenuItem Header="_Exit" InputGestureText="Alt+F4" />
+                <MenuItem Header="_Exit" InputGestureText="Alt+F4" Command="{Binding Path=ExitApplicationCommand}" />
             </MenuItem>
             <MenuItem Header="_Settings"/>
             <MenuItem Header="_Help">
-                <MenuItem Header="_Fuck off" />
+                <MenuItem Header="GitHub project" Command="{Binding Path=OpenUrlGitHub}" />
             </MenuItem>
         </Menu>
 
         <!--Statusbar-->
         <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem ToolTip="Aids">
-                <TextBlock x:Name="StatusBarStatus" Text="{Binding Path=StatusString}" />
+            <StatusBarItem HorizontalContentAlignment="Stretch" ToolTip="Status">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" x:Name="StatusBarStatus" Text="{Binding Path=StatusString}" HorizontalAlignment="Left" />
+
+                    <TextBlock Grid.Column="1" x:Name="StatusBarStatusRight" HorizontalAlignment="Left" >
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0} of {1} movies shown">
+                                <Binding Path="NumberOfFilteredMovies" Mode="OneWay" />
+                                <Binding Path="Movies.Count" Mode="OneWay" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <!--<TextBlock Grid.Column="1" x:Name="StatusBarStatusRight" Text="{Binding Path=StatusStringRight}" HorizontalAlignment="Right" />-->
+                </Grid>
             </StatusBarItem>
         </StatusBar>
 
@@ -57,6 +82,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
@@ -83,7 +109,7 @@
                     <ColumnDefinition Width="30*"/>
                     <ColumnDefinition Width="70*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Margin="5,5,5,5" Text="Sort by:" />
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="5,5,0,5" Text="Sort by:" />
                 <ComboBox x:Name="comboBoxSortBy" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5" ItemsSource="{Binding Path=SortByListTerms}" SelectedItem="{Binding Path=SortTerm}" />
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Margin="5,5,5,5" Text="Genre:" />
@@ -91,13 +117,6 @@
 
 
             </Grid>
-            
-            <!--<TextBlock Grid.Row="4" Grid.Column="0" Margin="5,5,5,5" Text="Sort by:" />
-            <ComboBox x:Name="comboBoxSortBy" Grid.Row="4" Grid.Column="1" Margin="5,5,5,5" ItemsSource="{Binding Path=SortByListTerms}" SelectedItem="{Binding Path=SortTerm}" />
-            
-            <TextBlock Grid.Row="5" Grid.Column="0" Margin="5,5,5,5" Text="Genre:" />
-            <ComboBox x:Name="comboBoxGenreFilter" Grid.Row="5" Grid.Column="1" Margin="5,5,5,5" ItemsSource="{Binding Path=GenresCollectionView}" SelectedItem="{Binding Path=SelectedGenre}" />-->
-            
 
             <Grid Grid.Row="6" Grid.ColumnSpan="2" Margin="5,5,5,5">
                 <TextBox Text="Search in list"
@@ -126,7 +145,7 @@
                 </TextBox>
             </Grid>
             
-            <ListView Grid.Row="7" Grid.ColumnSpan="2" Margin="5,0,5,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Path=MovieCollectionView, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Path=SelectedMovie}" >
+            <ListView Grid.Row="7" Grid.ColumnSpan="2" Margin="5,0,5,5" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Path=MovieCollectionView, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Path=SelectedMovie}" >
                 <ListView.Resources>
                     <Style TargetType="GridViewColumnHeader">
                         <!--<Setter Property="Visibility" Value="Hidden" />-->
@@ -136,20 +155,15 @@
                 </ListView.Resources>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <!--<TextBlock Text="{Binding Path=Title}" Height="{Binding Path=checkBoxSeen, Converter={StaticResource converter}}"/>-->
                         <TextBlock Text="{Binding Path=Title}" TextTrimming="CharacterEllipsis" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
-                <!--<ListView.View>
-                    --><!--<GridView>
-                        <GridViewColumn Width="Auto" Header="Title" DisplayMemberBinding="{Binding Title}" />
-                    </GridView>--><!--                   
-                </ListView.View>-->
             </ListView>
+
+            <Button x:Name="RandomButton" Grid.Row="8" Grid.ColumnSpan="2" Content="Random movie" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=SelectRandomMovieFromList}" />
 
         </Grid>
 
-        <!--<Separator DockPanel.Dock="Left" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />-->
         
         <!--Movie/TV viewer-->
         <Grid DockPanel.Dock="Right">
@@ -158,7 +172,7 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            
+
             <!-- Top view -->
             <Grid Grid.Row="0" Grid.Column="0">
                 <Grid.RowDefinitions>
@@ -197,40 +211,43 @@
                         <TextBlock Text="{Binding Path=SelectedMovie.imdbURL}" />
                     </Hyperlink>
                 </TextBlock>
-                
-                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,5,0,0" Text="Year:" HorizontalAlignment="Left" FontWeight="SemiBold" />
-                <TextBlock Grid.Row="2" Grid.Column="2" Margin="0,5,0,0" Text="Released:" HorizontalAlignment="Left" FontWeight="SemiBold" />
-                <TextBlock Grid.Row="2" Grid.Column="3" Margin="0,5,0,0" Text="DVD:" HorizontalAlignment="Left" FontWeight="SemiBold" />
+
+                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,5,0,0" Text="Year" HorizontalAlignment="Left" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="2" Grid.Column="2" Margin="0,5,0,0" Text="Released" HorizontalAlignment="Left" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="2" Grid.Column="3" Margin="0,5,0,0" Text="DVD" HorizontalAlignment="Left" FontWeight="SemiBold" />
 
                 <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Path=SelectedMovie.Year}" HorizontalAlignment="Left" />
                 <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Path=SelectedMovie.Released}" HorizontalAlignment="Left" />
                 <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding Path=SelectedMovie.DVD}" HorizontalAlignment="Left" />
 
-                <TextBlock Grid.Row="5" Grid.Column="1" Margin="0,5,0,0" Text="Runtime:" HorizontalAlignment="Left" FontWeight="SemiBold" />
-                <TextBlock Grid.Row="5" Grid.Column="2" Margin="0,5,0,0" Text="Box Office:" HorizontalAlignment="Left" FontWeight="SemiBold" />
-                <TextBlock Grid.Row="5" Grid.Column="3" Margin="0,5,0,0" Text="Language:" HorizontalAlignment="Left" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="5" Grid.Column="1" Margin="0,5,0,0" Text="Runtime" HorizontalAlignment="Left" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="5" Grid.Column="2" Margin="0,5,0,0" Text="Box Office" HorizontalAlignment="Left" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="5" Grid.Column="3" Margin="0,5,0,0" Text="Language" HorizontalAlignment="Left" FontWeight="SemiBold" />
 
                 <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Path=SelectedMovie.Runtime}" HorizontalAlignment="Left" />
                 <TextBlock Grid.Row="6" Grid.Column="2" Text="{Binding Path=SelectedMovie.BoxOffice}" HorizontalAlignment="Left" />
                 <TextBlock Grid.Row="6" Grid.Column="3" Text="{Binding Path=SelectedMovie.Language}" HorizontalAlignment="Left" />
-                
-                <TextBlock Grid.Row="7" Grid.Column="1" Margin="0,10,0,0" Text="Genre:" FontWeight="SemiBold" />
+
+                <TextBlock Grid.Row="7" Grid.Column="1" Margin="0,10,0,0" Text="Genre" FontWeight="SemiBold" />
                 <TextBlock Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0" Text="{Binding Path=SelectedMovie.Genre}" />
 
-                <TextBlock Grid.Row="9" Grid.Column="1" Margin="0,3,0,0" Text="Director:" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="9" Grid.Column="1" Margin="0,3,0,0" Text="Director" FontWeight="SemiBold" />
                 <TextBlock Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0" Text="{Binding Path=SelectedMovie.Director}" />
 
-                <TextBlock Grid.Row="11" Grid.Column="1" Margin="0,3,0,0" Text="Actors:" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="11" Grid.Column="1" Margin="0,3,0,0" Text="Actors" FontWeight="SemiBold" />
                 <TextBlock Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0" Text="{Binding Path=SelectedMovie.Actors}" TextTrimming="CharacterEllipsis"/>
-                
-                <TextBlock Grid.Row="13" Grid.Column="2" Margin="0,10,0,0" Text="First seen:" FontWeight="SemiBold" />
-                <TextBlock Grid.Row="13" Grid.Column="3" Margin="0,10,0,0" Text="Last seen" FontWeight="SemiBold" />
 
-                <TextBlock Grid.Row="14" Grid.Column="2" Margin="0,0,0,0" Text="{Binding Path=SelectedMovie.FirstSeen}" />
-                <TextBlock Grid.Row="14" Grid.Column="3" Margin="0,0,0,0" Text="{Binding Path=SelectedMovie.LastSeen}" />
+                <TextBlock Grid.Row="13" Grid.Column="1" Margin="0,15,0,0" Text="First seen" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="13" Grid.Column="2" Margin="0,15,0,0" Text="Last seen" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="13" Grid.Column="3" Margin="0,15,0,0" Text="Date added" FontWeight="SemiBold" />
+
+
+                <TextBlock Grid.Row="14" Grid.Column="1" Margin="0,0,0,0" Text="{Binding Path=SelectedMovie.FirstSeen}" />
+                <TextBlock Grid.Row="14" Grid.Column="2" Margin="0,0,0,0" Text="{Binding Path=SelectedMovie.LastSeen}" />
+                <TextBlock Grid.Row="14" Grid.Column="3" Margin="0,0,0,0" Text="{Binding Path=SelectedMovie.DateAddedToList}" />
 
             </Grid>
-            
+
             <!-- Middle view -->
             <Grid Grid.Row="1" Margin="5,5,5,5" >
                 <Grid.RowDefinitions>
@@ -249,12 +266,10 @@
                     <ColumnDefinition Width="25*" />
                     <ColumnDefinition Width="25*" />
                 </Grid.ColumnDefinitions>
-                
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="SemiBold" Text="IMDB rating:" />
-                <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" FontWeight="SemiBold" Text="My rating:" />
 
-                <!--<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,0" Text="{Binding Path=SelectedMovie.imdbRating}" />-->
-                <!--<utilities:RatingControlOld Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Height="20" Width="100" RateValue="{Binding Path=SelectedMovie.imdbRatingDouble}" />-->
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="SemiBold" Text="IMDB rating" />
+                <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" FontWeight="SemiBold" Text="My rating" />
+
 
                 <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                     <Grid.ColumnDefinitions>
@@ -281,36 +296,28 @@
                 </Grid>
 
 
-                <TextBlock Grid.Row="2" Grid.Column="0" FontWeight="SemiBold" Text="RT meter:" />
-                <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold" Text="RT rating:" />
-                <TextBlock Grid.Row="2" Grid.Column="2" FontWeight="SemiBold" Text="RT user meter:" />
-                <TextBlock Grid.Row="2" Grid.Column="3" FontWeight="SemiBold" Text="RT user rating:" />
+                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,5,0,0" FontWeight="SemiBold" Text="RT meter" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,5,0,0" FontWeight="SemiBold" Text="RT rating" />
+                <TextBlock Grid.Row="2" Grid.Column="2" Margin="0,5,0,0" FontWeight="SemiBold" Text="RT user meter" />
+                <TextBlock Grid.Row="2" Grid.Column="3" Margin="0,5,0,0" FontWeight="SemiBold" Text="RT user rating" />
 
-                <TextBlock Grid.Row="3" Grid.Column="0" Margin="5,0" Text="{Binding Path=SelectedMovie.tomatoMeter}" />
-                <TextBlock Grid.Row="3" Grid.Column="1" Margin="5,0" Text="{Binding Path=SelectedMovie.tomatoRating}" />
-                <TextBlock Grid.Row="3" Grid.Column="2" Margin="5,0" Text="{Binding Path=SelectedMovie.tomatoUserMeter}" />
-                <TextBlock Grid.Row="3" Grid.Column="3" Margin="5,0" Text="{Binding Path=SelectedMovie.tomatoUserRating}" />
+                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0" Text="{Binding Path=SelectedMovie.tomatoMeterForView}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,0" Text="{Binding Path=SelectedMovie.tomatoRatingForView}" />
+                <TextBlock Grid.Row="3" Grid.Column="2" Margin="0,0" Text="{Binding Path=SelectedMovie.tomatoUserMeterForView}" />
+                <TextBlock Grid.Row="3" Grid.Column="3" Margin="0,0" Text="{Binding Path=SelectedMovie.tomatoUserRatingForView}" />
 
-                <!--<Viewbox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4">
-                    <utilities:RatingControl NumberOfStars="10" BackgroundColor="Transparent" StarForegroundColor="Orange" StarMaskColor="Gray" StarOutlineColor="Transparent" HorizontalAlignment="Left" Value="{Binding Path=SelectedMovie.imdbRatingDouble}" />
-                </Viewbox>
 
-                <Viewbox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4">
-                    <utilities:MyRatingControl IsMyRatingEnabled="{Binding Path=SelectedMovie.Seen}" Value="{Binding Path=SelectedMovie.MyRatingInt}" />
-                </Viewbox>-->
+                <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,5,0,0" Text="Plot" FontWeight="SemiBold" />
 
-                <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,5,0,0" Text="Plot:" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4" TextWrapping="Wrap" MaxHeight="190" TextTrimming="WordEllipsis" Text="{Binding Path=SelectedMovie.Plot}" Margin="0,0,0,0" />
 
-                <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4" TextWrapping="Wrap" MaxHeight="190" TextTrimming="WordEllipsis" Text="{Binding Path=SelectedMovie.Plot}" Margin="5,5,5,5" />
+                <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,5,0,0" Text="My comments" FontWeight="SemiBold" />
 
-                <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" Text="My comments:" FontWeight="SemiBold" />
-
-                <TextBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="4" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding Path=SelectedMovie.MyComment, Mode=TwoWay}" Margin="5,5,5,5" />
-
+                <TextBox Grid.Row="7" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Column="0" Grid.ColumnSpan="4" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding Path=SelectedMovie.MyComment, Mode=TwoWay}" Margin="0,5,5,0" />
 
             </Grid>
-            
-            
+
+
             <!-- Bottom row with buttons -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                 <CheckBox x:Name="CheckBoxSeenItem" Content="Seen" Margin="5,5,5,5" VerticalAlignment="Center" IsEnabled="False" IsChecked="{Binding Path=SelectedMovie.Seen, Mode=OneWay}" />
@@ -319,97 +326,8 @@
                 <Button x:Name="ButtonRedownload" Content="Redownload" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=RedownloadData}" />
                 <Button x:Name="ButtonRemove" Content="Remove" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=RemoveMovieFromList}" />
             </StackPanel>
-            
+
         </Grid>
-        
-        <!--<Grid DockPanel.Dock="Right" >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Image Grid.RowSpan="6" Grid.Column="0"  
-                   Width="150"
-                   Margin="5, 5, 5, 5" 
-                   Source="{Binding Path=SelectedMovie.PosterLink}"/>
-            
-            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Path=SelectedMovie.Title}" FontSize="16" />
-            
-            <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" >
-                <Hyperlink NavigateUri="{Binding Path=SelectedMovies.imdbURL}" Command="{Binding Path=OpenUrl}">
-                    <TextBlock Text="{Binding Path=SelectedMovie.imdbURL}" />
-                </Hyperlink>
-            </TextBlock>
-
-            <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
-                <TextBlock Text="Year: " FontWeight="SemiBold" />
-                <TextBlock Text="{Binding Path=SelectedMovie.Year}" />
-            </StackPanel>
-
-            <StackPanel Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
-                <TextBlock Text="Genres: " FontWeight="SemiBold" />
-                <TextBlock Text="{Binding Path=SelectedMovie.Genre}" />
-            </StackPanel>
-
-            <StackPanel Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
-                <TextBlock Text="Director: " FontWeight="SemiBold" />
-                <TextBlock Text="{Binding Path=SelectedMovie.Director}" />
-            </StackPanel>
-
-            <StackPanel Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
-                <TextBlock Text="Actors: " FontWeight="SemiBold" />
-                <TextBlock TextWrapping="Wrap" Text="{Binding Path=SelectedMovie.Actors}" TextTrimming="CharacterEllipsis" />
-            </StackPanel>
-
-            <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Text="IMDB rating" FontWeight="SemiBold" Margin="0,5,5,5" />
-            <TextBlock x:Name="TextBlockIMDBRating" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Path=SelectedMovie.imdbRating}" Margin="5,0,0,0" />
-            <TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Text="My rating" FontWeight="SemiBold" Margin="0,5,5,5" />
-            <TextBlock x:Name="TextBlockMyRating" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Path=SelectedMovie.MyRating}" Margin="5,0,0,0" />
-
-            <TextBlock Grid.Row="6" Grid.Column="2" Text="First seen:" FontWeight="SemiBold" HorizontalAlignment="Right" Margin="5,5,10,5"/>
-            <TextBlock x:Name="TextBlockDateFirstSeen" Grid.Row="7" Grid.Column="2" Text="{Binding Path=SelectedMovie.FirstSeen, Mode=OneWay}" HorizontalAlignment="Right" Margin="0,0,10,0" />
-
-            <TextBlock Grid.Row="8" Grid.Column="2" Text="Last seen:" FontWeight="SemiBold" HorizontalAlignment="Right" Margin="5,5,10,5" />
-            <TextBlock x:Name="TextBlockDateLastSeen" Grid.Row="9" Grid.Column="2" Text="{Binding Path=SelectedMovie.LastSeen, Mode=OneWay}" HorizontalAlignment="Right" Margin="0,0,10,0" />
-
-            <TextBlock Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Text="Plot:" FontWeight="SemiBold" />
-
-            <TextBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding Path=SelectedMovie.Plot}" Margin="5,5,5,5" />
-
-            <TextBlock Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="3" Text="My comments:" FontWeight="SemiBold" />
-
-            <TextBox Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="3" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding Path=SelectedMovie.MyComment, Mode=TwoWay}" Margin="5,5,5,5" />
-
-            <StackPanel Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right">
-                <CheckBox x:Name="CheckBoxSeenItem" Content="Seen" Margin="5,5,5,5" VerticalAlignment="Center" IsEnabled="False" IsChecked="{Binding Path=SelectedMovie.Seen, Mode=OneWay}" />
-                <Button x:Name="ButtonUpdate" Content="Movie seen" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=UpdateMovieAsSeen}" />
-                <Button x:Name="ButtonAddToList" Content="Add to list" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=AddToList}"/>
-                <Button x:Name="ButtonRedownload" Content="Redownload" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=RedownloadData}" />
-                <Button x:Name="ButtonRemove" Content="Remove" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=RemoveMovieFromList}" />
-            </StackPanel>
-            
-            
-
-        </Grid>-->
-
 
     </DockPanel>
 </Window>

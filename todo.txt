@@ -8,7 +8,8 @@ add movable separator between list and viewer           SKIP
 add bold text for parts of ui                           V
 fix actor names too long                                V
 include rotten tomatoes rating                          V
-fix search window	                                    V
+fix search window	                                V
 fix search window enter listen	                        V
 sort by genre, imdbrating, myrating, alphabetical       V
+fixed shortcuts not working                             V
 

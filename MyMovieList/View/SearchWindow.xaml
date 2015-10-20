@@ -13,7 +13,7 @@
         ResizeMode="NoResize"
         x:Name="this">
 
-    <Grid >
+    <Grid FocusManager.FocusedElement="{Binding ElementName=searchTextBox}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -31,10 +31,11 @@
         <!--<TextBox x:Name="SearchTextBox" Grid.Row="0" Grid.Column="0" Text="{Binding Path=NewSearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5" KeyDown="SearchWindowSearchEnterKeyDown" />-->
 
         <Grid Grid.Row="0" Grid.Column="0" Margin="5,5,5,5">
-            <TextBox Text="Search IMDB"
+            <TextBox x:Name="searchTextBox" Text="{Binding Path=NewSearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="SearchWindowSearchEnterKeyDown" />
+            <!--<TextBox Text="Search IMDB"
                     Focusable="False">
             </TextBox>
-            <TextBox Text="{Binding Path=NewSearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="SearchWindowSearchEnterKeyDown" Focusable="True">
+            <TextBox Text="{Binding Path=NewSearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="SearchWindowSearchEnterKeyDown" Focusable="True" FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self=}}">
                 <TextBox.Style>
                     <Style TargetType="TextBox">
                         <Setter Property="Opacity"
@@ -53,7 +54,7 @@
                         </Style.Triggers>
                     </Style>
                 </TextBox.Style>
-            </TextBox>
+            </TextBox>-->
         </Grid>
         
         <ListView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,5,5,5" ItemsSource="{Binding Path=OmdbSearchResults, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Path=SelectedResult}">
