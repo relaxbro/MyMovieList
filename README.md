@@ -4,7 +4,7 @@ Keep track of movies you have watched and movies that you plan to watch.
 
 ## Current 
 
-![Screenshot](/Screenshots/screenshot20151015.jpg)
+![Screenshot](/Screenshots/screenshot20151015.png)
 
 
 ### Todo
