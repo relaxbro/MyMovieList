@@ -8,7 +8,7 @@ Keep track of movies you have watched and movies that you plan to watch.
 
 
 ### Todo
- - Logging (when crash)??????????
+ - Logging (when error)??????????
  - Web request timeout
  - Implement async
  - Implement TV series
