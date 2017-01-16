@@ -19,15 +19,23 @@
         Closing="WindowClose">
 
     <Window.Resources>
-        <!-- <vm:MainViewModel x:Key="vm" /> -->
+        <!--<vm:MainViewModel x:Key="vm" />-->
+        <utilities:BoolToVisibleOrCollapsedConverter x:Key="boolToVisibleOrCollapsedConverter" />
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
     </Window.Resources>
+
+    <!--<Window.DataContext>
+        -->
+    <!--<local:MainWindow />-->
+    <!--
+    </Window.DataContext>-->
 
     <Window.InputBindings>
         <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding Path=NewFileCommand}" />
         <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding Path=OpenFileCommand}" />
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding Path=SaveFileCommand}" />
     </Window.InputBindings>
-    
+
     <DockPanel>
 
         <!--Menu bar-->
@@ -39,9 +47,14 @@
                 <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="{Binding Path=SaveFileCommand}" />
                 <MenuItem Header="_Save as" Command="{Binding Path=SaveFileAsCommand}" />
                 <Separator />
+                <MenuItem Header="Redownload all data" Command="{Binding Path=RedownloadAllDataCommand}" />
+                <Separator />
                 <MenuItem Header="_Exit" InputGestureText="Alt+F4" Command="{Binding Path=ExitApplicationCommand}" />
             </MenuItem>
-            <MenuItem Header="_Settings"/>
+            <MenuItem Header="_Settings">
+                <MenuItem Header="Open previous file on start" IsCheckable="True" IsChecked="{Binding Path=settingsHandler.OpenPreviousOnStartup, Mode=TwoWay}" />
+                <MenuItem Header="Remember Seen / Not seen to next session" IsCheckable="True" IsChecked="{Binding Path=settingsHandler.RememberSeenNotSeenOnStartup, Mode=TwoWay}" />
+            </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="GitHub project" Command="{Binding Path=OpenUrlGitHub}" />
             </MenuItem>
@@ -54,11 +67,17 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0" x:Name="StatusBarStatus" Text="{Binding Path=StatusString}" HorizontalAlignment="Left" />
 
-                    <TextBlock Grid.Column="1" x:Name="StatusBarStatusRight" HorizontalAlignment="Left" >
+                    <!--<TextBlock Grid.Column="1" Visibility="{Binding Path=ShowRedownloadAllProgress, Converter={StaticResource boolToVisibleOrCollapsedConverter}, UpdateSourceTrigger=PropertyChanged, FallbackValue=Visible}" x:Name="StatusBarStatusTEST" Margin="5,0,5,0" Text="AIDS" HorizontalAlignment="Left" />-->
+                    <ProgressBar Grid.Column="1" Visibility="{Binding Path=ShowRedownloadAllProgress, Converter={StaticResource boolToVisibleOrCollapsedConverter}, UpdateSourceTrigger=PropertyChanged, FallbackValue=Visible}" Width="100" Margin="5,0,5,0" Minimum="0" Maximum="{Binding Path=Movies.Count}" Value="{Binding Path=RedownloadAllProgress}"/>
+                    <!--<ProgressBar Grid.Column="1" Visibility="Hidden" Width="100" Margin="5,0,5,0" Minimum="0" Maximum="{Binding Path=Movies.Count}" Value="{Binding Path=RedownloadAllProgress}"/>-->
+
+
+                    <TextBlock Grid.Column="2" x:Name="StatusBarStatusRight" HorizontalAlignment="Left" >
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}{0} of {1} movies shown">
                                 <Binding Path="NumberOfFilteredMovies" Mode="OneWay" />
@@ -85,22 +104,24 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="55"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="20"/>
                 <ColumnDefinition Width="80"/>
             </Grid.ColumnDefinitions>
 
-            <Button x:Name="NewSearchButton" Grid.Row="0" Grid.ColumnSpan="2" Content="Search for movie" Margin="5,5,5,5" Padding="5,2" Click="SearchButtonClick" />
-            
-            <Separator Grid.Row="1" Grid.ColumnSpan="2" />
-            
-            <ToggleButton x:Name="ToggleButtonMovies" Grid.Row="2" Grid.Column="0" Content="Movies" Margin="5,5,5,5" Padding="5,2" />
-            <ToggleButton x:Name="ToggleButtonTV" Grid.Row="2" Grid.Column="1" Content="TV" IsEnabled="False" Margin="5,5,5,5" Padding="5,2" />
+            <Button x:Name="NewSearchButton" Grid.Row="0" Grid.ColumnSpan="4" Content="Search for movie" Margin="5,5,5,5" Padding="5,2" Click="SearchButtonClick" />
 
-            <CheckBox x:Name="checkBoxSeen" Grid.Row="3" Grid.Column="0" Content="Seen" Margin="5,5,5,5" IsChecked="{Binding Path=ShowSeen, Mode=TwoWay}"/>
-            <CheckBox x:Name="checkBoxNotSeen" Grid.Row="3" Grid.Column="1" Content="Not seen" Margin="5,5,5,5" IsChecked="{Binding Path=ShowNotSeen, Mode=TwoWay}"/>
+            <Separator Grid.Row="1" Grid.ColumnSpan="4" />
+
+            <ToggleButton x:Name="ToggleButtonMovies" Grid.Row="2" Grid.Column="0" Content="Movies" Margin="5,5,5,5" Padding="5,2" Grid.ColumnSpan="3" />
+            <ToggleButton x:Name="ToggleButtonTV" Grid.Row="2" Grid.Column="3" Content="TV" IsEnabled="False" Margin="5,5,5,5" Padding="5,2" />
+
+            <CheckBox x:Name="checkBoxSeen" Grid.Row="3" Grid.Column="0" Content="Seen" Margin="5,5,5,5" IsChecked="{Binding Path=ShowSeen, Mode=TwoWay}" Grid.ColumnSpan="3"/>
+            <CheckBox x:Name="checkBoxNotSeen" Grid.Row="3" Grid.Column="3" Content="Not seen" Margin="5,5,5,5" IsChecked="{Binding Path=ShowNotSeen, Mode=TwoWay}"/>
 
 
-            <Grid Grid.Row="4" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid Grid.Row="4" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -118,7 +139,7 @@
 
             </Grid>
 
-            <Grid Grid.Row="6" Grid.ColumnSpan="2" Margin="5,5,5,5">
+            <Grid Grid.Row="6" Grid.ColumnSpan="4" Margin="5,5,5,5">
                 <TextBox Text="Search in list"
                     Focusable="False">
                 </TextBox>
@@ -144,8 +165,8 @@
                     </TextBox.Style>
                 </TextBox>
             </Grid>
-            
-            <ListView Grid.Row="7" Grid.ColumnSpan="2" Margin="5,0,5,5" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Path=MovieCollectionView, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Path=SelectedMovie}" >
+
+            <ListView Grid.Row="7" Grid.ColumnSpan="4" Margin="5,0,5,5" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Path=MovieCollectionView, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Path=SelectedMovie}" >
                 <ListView.Resources>
                     <Style TargetType="GridViewColumnHeader">
                         <!--<Setter Property="Visibility" Value="Hidden" />-->
@@ -160,11 +181,11 @@
                 </ListView.ItemTemplate>
             </ListView>
 
-            <Button x:Name="RandomButton" Grid.Row="8" Grid.ColumnSpan="2" Content="Random movie" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=SelectRandomMovieFromList}" />
+            <Button x:Name="RandomButton" Grid.Row="8" Grid.ColumnSpan="4" Content="Random movie" Margin="5,5,5,5" Padding="5,2" Command="{Binding Path=SelectRandomMovieFromList}" />
 
         </Grid>
 
-        
+
         <!--Movie/TV viewer-->
         <Grid DockPanel.Dock="Right">
             <Grid.RowDefinitions>
@@ -207,7 +228,7 @@
                 <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="0" TextWrapping="Wrap" Text="{Binding Path=SelectedMovie.Title}" FontWeight="Bold" FontSize="20" HorizontalAlignment="Left" />
 
                 <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,-2,0, 3" HorizontalAlignment="Left" >
-                    <Hyperlink NavigateUri="{Binding Path=SelectedMovies.imdbURL}" Command="{Binding Path=OpenUrl}">
+                    <Hyperlink NavigateUri="{Binding Path=SelectedMovie.imdbURL}" Command="{Binding Path=OpenUrl}">
                         <TextBlock Text="{Binding Path=SelectedMovie.imdbURL}" />
                     </Hyperlink>
                 </TextBlock>
@@ -229,13 +250,16 @@
                 <TextBlock Grid.Row="6" Grid.Column="3" Text="{Binding Path=SelectedMovie.Language}" HorizontalAlignment="Left" />
 
                 <TextBlock Grid.Row="7" Grid.Column="1" Margin="0,10,0,0" Text="Genre" FontWeight="SemiBold" />
-                <TextBlock Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0" Text="{Binding Path=SelectedMovie.Genre}" />
+                <TextBlock Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0" Text="{Binding Path=SelectedMovie.Genre}" />
 
                 <TextBlock Grid.Row="9" Grid.Column="1" Margin="0,3,0,0" Text="Director" FontWeight="SemiBold" />
-                <TextBlock Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0" Text="{Binding Path=SelectedMovie.Director}" />
+                <TextBlock Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0" Text="{Binding Path=SelectedMovie.Director}" />
+
+                <TextBlock Grid.Row="7" Grid.Column="3" Margin="0,10,0,0" Text="Country" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="8" Grid.Column="3" Margin="0,0"  Text="{Binding Path=SelectedMovie.Country}" />
 
                 <TextBlock Grid.Row="11" Grid.Column="1" Margin="0,3,0,0" Text="Actors" FontWeight="SemiBold" />
-                <TextBlock Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0" Text="{Binding Path=SelectedMovie.Actors}" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0" Text="{Binding Path=SelectedMovie.Actors}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
 
                 <TextBlock Grid.Row="13" Grid.Column="1" Margin="0,15,0,0" Text="First seen" FontWeight="SemiBold" />
                 <TextBlock Grid.Row="13" Grid.Column="2" Margin="0,15,0,0" Text="Last seen" FontWeight="SemiBold" />

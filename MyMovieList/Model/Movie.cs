@@ -77,6 +77,16 @@ namespace MyMovieList
             }
         }
 
+        private string _DateLastRedownload = "N/A";
+        public string DateLastRedownload
+        {
+            get { return _DateLastRedownload; }
+            set
+            {
+                _DateLastRedownload = value;
+            }
+        }
+
         private string _MyRating = "N/A";
         public string MyRating
         {
@@ -374,10 +384,16 @@ namespace MyMovieList
         #endregion
 
 
-        public void LoadDataWithID(string ID)
+        public async Task<string> LoadDataWithID(string ID)
         {
             OmdbApiRequest request = new OmdbApiRequest();
-            parseData(request.RequestWithID(ID));
+            string result = await request.RequestWithID(ID);
+            if (result.StartsWith(";"))
+            {
+                return result.Substring(1);
+            }
+            parseData(result);
+            return "";
         }
 
         private void parseData(string jsonData)

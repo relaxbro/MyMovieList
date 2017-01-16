@@ -8,6 +8,7 @@ using System.IO;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.ComponentModel;
+using System.Diagnostics;
 using GalaSoft.MvvmLight.Messaging;
 using MyMovieList.Model;
 using MyMovieList.Utilities;
@@ -22,20 +23,41 @@ namespace MyMovieList.ViewModel
         private string currentSaveFileName;
         private List<string> _SortByListTerms;
         private static Random rnd = new Random();
-        private SettingsHandler settingsHandler = new SettingsHandler();
+        private SettingsHandler _SettingsHandler = new SettingsHandler();
+        public SettingsHandler settingsHandler
+        {
+            get { return _SettingsHandler; }
+        }
 
         MessageBoxManager _messageBoxManager = new MessageBoxManager();
 
         public MainViewModel()
         {
             settingsHandler.LoadSettings();
-            
+            //ShowSeen = settingsHandler.ShowSeen;
+            //ShowNotSeen = settingsHandler.ShowNotSeen;
+
             if (settingsHandler.OpenPreviousOnStartup)
             {
                 DataStorage.OpenListFromFile(settingsHandler.PreviousFile);
                 currentSaveFileName = settingsHandler.PreviousFile;
                 StatusString = "File loaded: " + currentSaveFileName;
-                GetRandomMovie();
+                // only show random movie if list contains a movie
+                if (DataStorage.Movies.Count() > 0)
+                {
+                    //GetRandomMovie();
+                    if (DataStorage.MovieExistsInCollection(settingsHandler.PreviousCurrentMovieID))
+                    {
+                        SelectedMovie = DataStorage.GetMovieWithID(settingsHandler.PreviousCurrentMovieID);
+                    }
+                    else
+                    {
+                        //Debug.WriteLine("Before creating new movie from settings " + settingsHandler.PreviousCurrentMovieID);
+                        //SelectedMovie = new Movie(settingsHandler.PreviousCurrentMovieID);
+                        GetRandomMovie();
+                        //Debug.WriteLine("After creating new movie from settings " + settingsHandler.PreviousCurrentMovieID);
+                    }
+                }
             }
 
             // connect the icollectionview to observable collection movie
@@ -53,13 +75,6 @@ namespace MyMovieList.ViewModel
             // create filter to filter the collection
             _movieCollectionView.Filter = FullFilter;
 
-            //DataStorage.Movies.Add(new Movie("tt3832914"));
-            //DataStorage.Movies.Add(new Movie("tt0478970"));
-            //DataStorage.Movies.Add(new Movie("tt0270919"));
-            //DataStorage.Movies.Add(new Movie("tt0241527"));
-            //DataStorage.Movies.Add(new Movie("tt0330373"));
-            //DataStorage.Movies.Add(new Movie("tt0417741"));
-            //DataStorage.Movies.Add(new Movie("tt0304141"));
 
             DataStorage.UpdateGenresFull();
 
@@ -120,6 +135,7 @@ namespace MyMovieList.ViewModel
             set
             {
                 _SortTerm = value;
+                StatusString = "Sort by: " + _SortTerm;
                 SortCollection();
             }
         }
@@ -152,13 +168,7 @@ namespace MyMovieList.ViewModel
             }
             else
             {
-                //if (string.IsNullOrEmpty(SelectedGenre))
-                //{
-                //    SelectedGenre = "All";
-                //    return true;
-                //}
                 Movie movie = item as Movie;
-                //Console.WriteLine("Selected genre; " + SelectedGenre);
                 return movie.Genre.Contains(SelectedGenre);
             }
         }
@@ -166,15 +176,12 @@ namespace MyMovieList.ViewModel
         private bool SearchInListFilter(object item)
         {
             Movie movie = item as Movie;
-            //Console.WriteLine("inside SearchListFilter");
-            //return movie.Title.Contains(SearchInListString);      // case sensitive
             return movie.Title.IndexOf(SearchInListString, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private bool ShowSeenAndNotSeenFilter(object item)
         {
             Movie movie = item as Movie;
-            //Console.WriteLine("inside ShowSeenAndNotSeenFilter, movie.title = ", movie.Title);
             if (ShowSeen && ShowNotSeen)
             {
                 return true;
@@ -211,6 +218,28 @@ namespace MyMovieList.ViewModel
             set { _HasUnsavedChanges = value; }
         }
 
+        private int _RedownloadAllProgress = 0;
+        public int RedownloadAllProgress
+        {
+            get { return _RedownloadAllProgress; }
+            set
+            {
+                _RedownloadAllProgress = value;
+                onPropertyChanged("RedownloadAllProgress");
+            }
+        }
+
+        private bool _ShowRedownloadAllProgress = false;
+        public bool ShowRedownloadAllProgress
+        {
+            get { return _ShowRedownloadAllProgress; }
+            set
+            {
+                _ShowRedownloadAllProgress = value;
+                onPropertyChanged("ShowRedownloadAllProgress");
+            }
+        }
+
         public ICollectionView MovieCollectionView
         {
             get
@@ -223,7 +252,7 @@ namespace MyMovieList.ViewModel
         {
             get
             { 
-                System.Console.WriteLine("filtered count " + MovieCollectionView.OfType<Movie>().Count());
+                Debug.WriteLine("filtered count " + MovieCollectionView.OfType<Movie>().Count());
                 return MovieCollectionView.OfType<Movie>().Count();
             }
         }
@@ -274,16 +303,12 @@ namespace MyMovieList.ViewModel
             get { return _SelectedMovie; }
             set
             {
-                if (value == null)
-                {
-                    //Console.WriteLine("selected movie is now null.");
-                }
-                else
+                if (value != null)
                 {
                     _SelectedMovie = value;
+                    settingsHandler.PreviousCurrentMovieID = _SelectedMovie.imdbID;
                     CurrentMovie = _SelectedMovie;
                     onPropertyChanged("SelectedMovie");
-                    StatusString = "Selected movie: " + value.Title;
                 }
             }
         }
@@ -302,26 +327,52 @@ namespace MyMovieList.ViewModel
             }
         }
 
-        private bool _ShowSeen = true;
+        //private bool _ShowSeen = true;
+        //public bool ShowSeen
+        //{
+        //    get { return _ShowSeen; }
+        //    set
+        //    {
+        //        _ShowSeen = value;
+        //        settingsHandler.ShowSeen = value;
+        //        onPropertyChanged("ShowSeen");
+        //        _movieCollectionView.Refresh();
+        //        UpdateCounter();
+        //    }
+        //}
+
         public bool ShowSeen
         {
-            get { return _ShowSeen; }
+            get { return settingsHandler.ShowSeen; }
             set
             {
-                _ShowSeen = value;
+                settingsHandler.ShowSeen = value;
                 onPropertyChanged("ShowSeen");
                 _movieCollectionView.Refresh();
                 UpdateCounter();
             }
         }
 
-        private bool _ShowNotSeen = true;
+        //private bool _ShowNotSeen = true;
+        //public bool ShowNotSeen
+        //{
+        //    get { return _ShowNotSeen; }
+        //    set
+        //    {
+        //        _ShowNotSeen = value;
+        //        settingsHandler.ShowNotSeen = value;
+        //        onPropertyChanged("ShowUnseen");
+        //        _movieCollectionView.Refresh();
+        //        UpdateCounter();
+        //    }
+        //}
+
         public bool ShowNotSeen
         {
-            get { return _ShowNotSeen; }
+            get { return settingsHandler.ShowNotSeen; }
             set
             {
-                _ShowNotSeen = value;
+                settingsHandler.ShowNotSeen = value;
                 onPropertyChanged("ShowUnseen");
                 _movieCollectionView.Refresh();
                 UpdateCounter();
@@ -371,9 +422,6 @@ namespace MyMovieList.ViewModel
 
         public void ExecuteUpdateMovieAsSeen(object parameter)
         {
-            //Console.WriteLine("inside executeUpdateMovieAsSeen");
-            //SelectedMovie.Seen = true;
-
             string currentDate = DateTime.Today.ToString("yyyy.MM.dd");
 
             if (!SelectedMovie.Seen)
@@ -421,19 +469,15 @@ namespace MyMovieList.ViewModel
         {
             if (!DataStorage.MovieExistsInCollection(SelectedMovie))
             {
-                //Console.WriteLine("movie not in collection. adding");
                 StatusString = "Added to list: " + SelectedMovie.Title;
                 SelectedMovie.DateAddedToList = DateTime.Today.ToString("yyyy.MM.dd");
+                SelectedMovie.DateLastRedownload = DateTime.Today.ToString("yyyy.MM.dd");
                 Movies.Add(SelectedMovie);
                 HasUnsavedChanges = true;
                 DataStorage.UpdateGenres(SelectedMovie);
                 onPropertyChanged("Genres");
                 UpdateCounter();
                 
-            }
-            else
-            {
-                //Console.WriteLine("movie allready in collection. not adding.");
             }
         }
         
@@ -461,13 +505,20 @@ namespace MyMovieList.ViewModel
             }
         }
 
-        public void ExecuteRedownloadData(object parameter)
+        public async void ExecuteRedownloadData(object parameter)
         {
-            //Console.WriteLine("inside ExecuteRedownloadData");
-            CurrentMovie.LoadDataWithID(SelectedMovie.imdbID);
-            StatusString = "Redownload data for: " + SelectedMovie.Title;
-            //Console.WriteLine("redownload of data done");
-            
+            Debug.WriteLine(CurrentMovie.imdbVotes, CurrentMovie.imdbRating);
+            StatusString = "Redownload data: " + SelectedMovie.Title;
+            string resStatus = await CurrentMovie.LoadDataWithID(SelectedMovie.imdbID);
+            if (resStatus.StartsWith(";"))
+            {
+                StatusString = "Redownload timed out";
+                return;
+            }
+            CurrentMovie.DateLastRedownload = DateTime.Today.ToString("yyyy.MM.dd");
+            onPropertyChanged("SelectedMovie");
+            Debug.WriteLine(CurrentMovie.imdbVotes, CurrentMovie.imdbRating);
+            HasUnsavedChanges = true;
         }
 
         public bool CanRedownloadData(object parameter)
@@ -492,6 +543,7 @@ namespace MyMovieList.ViewModel
             DataStorage.RemoveMovieFromList(SelectedMovie);
             UpdateCounter();
             StatusString = "Removed from list: " + SelectedMovie.Title;
+            HasUnsavedChanges = true;
         }
 
         public bool CanRemoveMovieFromList(object parameter)
@@ -536,6 +588,7 @@ namespace MyMovieList.ViewModel
             }
             return true;
         }
+        // ICommand for oping GitHub URL
         public ICommand OpenUrlGitHub
         {
             get
@@ -552,7 +605,7 @@ namespace MyMovieList.ViewModel
             }
             catch (Exception e)
             {
-                System.Console.WriteLine(e);
+                Debug.WriteLine(e);
                 return;
             }
         }
@@ -677,6 +730,7 @@ namespace MyMovieList.ViewModel
                 StatusString = "Current file: " + currentSaveFileName;
                 settingsHandler.PreviousFile = currentSaveFileName;
                 UpdateCounter();
+                SelectedGenre = "All";
 
                 if (SelectedMovie.Title == "Dummy movie")
                 {
@@ -749,6 +803,53 @@ namespace MyMovieList.ViewModel
         #endregion
         #endregion
 
+        #region RedownloadAllData
+        public ICommand RedownloadAllDataCommand
+        {
+            get { return new RelayCommand(ExecuteRedownloadAllData, CanRedownloadAllData);  }
+        }
+
+        private async void ExecuteRedownloadAllData(object parameter)
+        {
+            //StatusString = "Redownloading all data";
+            //await DataStorage.RedownloadAllMovies();
+            await RunRedownloadAllMovies();
+            onPropertyChanged("SelectedMovie");
+            HasUnsavedChanges = true;
+        }
+
+        private async Task RunRedownloadAllMovies()
+        {
+            if (Movies.Count == 0)
+            {
+                return;
+            }
+            ShowRedownloadAllProgress = true;
+            string status = "Redownload complete";
+            RedownloadAllProgress = 1;
+            foreach (var mov in Movies)
+            {
+                StatusString = string.Format("Redownloading {0,4}/{1}: {2}", RedownloadAllProgress.ToString(), Movies.Count.ToString(), mov.Title);
+                string resStatus = await mov.LoadDataWithID(mov.imdbID);
+                if (resStatus.StartsWith(";"))
+                {
+                    status = resStatus.Substring(1);
+                    break;
+                }
+                mov.DateLastRedownload = DateTime.Today.ToString("yyyy.MM.dd");
+                await Task.Delay(1000);
+                RedownloadAllProgress++;
+            }
+            ShowRedownloadAllProgress = false;
+            StatusString = status;
+        }
+
+        private bool CanRedownloadAllData(object parameter)
+        {
+            return !ShowRedownloadAllProgress;
+        }
+        #endregion
+
         #region Exit
         public ICommand ExitApplicationCommand
         {
@@ -758,7 +859,7 @@ namespace MyMovieList.ViewModel
         private void ExecuteExitApplication(object parameter)
         {
             //System.Console.WriteLine("inside ExecuteExitApplication() start");
-            // to avoid getting the dialog twice. this because current.shutdown() fires event which is the same as exiting with red x
+            // to avoid getting the dialog twice. this because current.shutdown() fires event which is the same as exiting with red x (top right)
             if (_ShuttingDown)
             {
                 return;
@@ -841,8 +942,7 @@ namespace MyMovieList.ViewModel
                 }
             }
             SelectedMovie = Movies[index];
-            //SelectedMovie = Movies[rnd.Next(Movies.Count-1)];
-            StatusString = "Random movie: " + SelectedMovie.Title;
+            //StatusString = "Random movie: " + SelectedMovie.Title;
         }
         #endregion
 

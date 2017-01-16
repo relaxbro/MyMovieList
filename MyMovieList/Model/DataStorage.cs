@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Diagnostics;
 using Newtonsoft.Json;
 using MyMovieList.Model;
 
@@ -57,7 +58,7 @@ namespace MyMovieList.Model
 
         public static void OpenListFromFile(string fileName)
         {
-            if (String.IsNullOrEmpty(fileName))
+            if (String.IsNullOrEmpty(fileName) || fileName == "N/A")
             {
                 return;
             }
@@ -162,7 +163,7 @@ namespace MyMovieList.Model
                     if (mov.imdbID == movie.imdbID)
                     {
                         Movies.Remove(mov);
-                        CurrentMovie = new Movie();
+                        CurrentMovie = null;
                         return;
                     }
                 }
@@ -176,17 +177,17 @@ namespace MyMovieList.Model
 
         public static void UpdateGenres(string genre)
         {
-            bool genraAdded = false;
+            bool genreAdded = false;
             string[] s = genre.Split(',');
             foreach (var gen in s)
             {
                 if (!GenreIsInList(gen))
                 {
                     Genres.Add(gen.Trim());
-                    genraAdded = true;
+                    genreAdded = true;
                 }
             }
-            if (genraAdded)
+            if (genreAdded)
             {
                 SortGenres();
             }
@@ -237,6 +238,20 @@ namespace MyMovieList.Model
             for(int i = 0; i < tempSort.Count; i++)
             {
                 Genres[i + 1] = tempSort[i];
+            }
+        }
+
+        public async static Task RedownloadAllMovies()
+        {
+            if (Movies.Count == 0)
+            {
+                return;
+            }
+            foreach (var mov in Movies)
+            {
+                Debug.WriteLine("updating: ", mov.Title);
+                await mov.LoadDataWithID(mov.imdbID);
+                await Task.Delay(1000);
             }
         }
     }

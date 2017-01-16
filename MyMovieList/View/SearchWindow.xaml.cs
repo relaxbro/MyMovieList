@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using System.Reactive.Linq;
 using MyMovieList.ViewModel;
 using MyMovieList.Model;
 
@@ -35,6 +36,8 @@ namespace MyMovieList.View
                 vm.CloseWindowAction = new Action(() => this.Close());
             }
         }
+
+        
 
         private void SearchWindowSearchEnterKeyDown(object sender, KeyEventArgs e)
         {

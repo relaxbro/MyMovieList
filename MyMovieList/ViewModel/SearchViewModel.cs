@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,8 +9,10 @@ using System.IO;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
+using System.Reactive.Linq;
 using Newtonsoft.Json.Linq;
 using GalaSoft.MvvmLight.Messaging;
+using MyMovieList.View;
 using MyMovieList.Model;
 using MyMovieList.Utilities;
 
@@ -20,24 +23,45 @@ namespace MyMovieList.ViewModel
         ObservableCollection<OmdbSearchResult> _OmdbSearchResults = new ObservableCollection<OmdbSearchResult>();
         MessageBoxManager _messageBoxManager = new MessageBoxManager();
 
+        //private IObservable<string> searchObservable;
+        //DateTime timeAtLastSearchUpdate = DateTime.UtcNow;
+
+
+
         public SearchViewModel()
         {
-            System.Console.WriteLine("creating new searchviewmodel");
+            Debug.WriteLine("creating new searchviewmodel");
+
+            //var searchObservable = Observable.FromEventPattern<PropertyChangedEventArgs>(this, "PropertyChanged")
+            //    .Where(e => e.EventArgs.PropertyName == "NewSearchTerm")
+            //    .Select(_ => this.NewSearchTerm)
+            //    .Throttle(TimeSpan.FromMilliseconds(300))
+            //    .Subscribe(e => DoNewSearch());
+            //    .SelectMany(async _ => await DoNewSearch())
+
         }
 
+        //private IObservable<string> searchObservable = Observable.FromEventPattern<PropertyChangedEventArgs>(this, "PropertyChanged")
+        //    .Where(e => e.EventArgs.PropertyName == "NewSearchTerm")
+        //    .Select(NewSearchTerm)
+        //    .Throttle(TimeSpan.FromMilliseconds(300))
+        //    .Subscribe(DoNewSearch);
 
-        //public ObservableCollection<Movie> Movies
-        //{
-        //    get
-        //    {
-        //        return DataStorage.Movies;
-        //    }
-        //    set
-        //    {
-        //        DataStorage.Movies = value;
-        //        onPropertyChanged("Movies");
-        //    }
-        //}
+        //private IObservable<string> searchObservable = Observable.FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
+        //    h => this.PropertyChanged() += h, h => PropertyChanged -= h);
+
+
+
+        //public event PropertyChangedEventHandler SearchPropertyChanged;
+        //private event PropertyChangedEventHandler privateSearchPropertyChanged;    
+
+
+        //private IObservable<string> searchObservable = Observable.FromEventPattern<TextChangedEventHandler, TextChangedEventHandler>(
+        //    h => sw.searchTextBox.TextChanged += h,
+        //    h => sw.searchTextBox.TextChanged -= h)
+        //    .Select(XamlGeneratedNamespace => sw.searchTextBox.Text)
+        //    .Throttle(TimeSpan.FromMilliseconds(300));
+
 
         public Movie CurrentMovie
         {
@@ -61,9 +85,19 @@ namespace MyMovieList.ViewModel
             }
             set
             {
+                // binding uses delay. Not the best way of doing this. Should use reactive extensions.
                 _NewSearchTerm = value;
                 onPropertyChanged("NewSearchTerm");
-                //SearchStatus = "Searching for " + _NewSearchTerm;
+                DoNewSearch();
+
+                // this is a baaaad way of doing this
+                //if (DateTime.UtcNow - timeAtLastSearchUpdate > TimeSpan.FromMilliseconds(1000))
+                //{
+                //    Debug.WriteLine("Inside the shit going down");
+                //    DoNewSearch();
+                //    timeAtLastSearchUpdate = DateTime.UtcNow;
+                //}
+
             }
         }
 
@@ -77,7 +111,7 @@ namespace MyMovieList.ViewModel
             set
             {
                 _SearchStatus = value;
-                System.Console.WriteLine("Searchstatus: " + _SearchStatus);
+                Debug.WriteLine("Searchstatus: " + _SearchStatus);
                 onPropertyChanged("SearchStatus");
             }
         }
@@ -103,14 +137,14 @@ namespace MyMovieList.ViewModel
             }
         }
 
-        public string UseSearchParser(string search)
+        public async Task<string> UseSearchParser(string search)
         {
             SearchParser searchParser = new SearchParser();
-            return searchParser.Search(search);
+            return await searchParser.Search(search);
         }
 
         #region Search
-        public void DoNewSearch()
+        public async void DoNewSearch()
         {
             if (string.IsNullOrEmpty(NewSearchTerm))
             {
@@ -124,12 +158,17 @@ namespace MyMovieList.ViewModel
             }
 
             _OmdbSearchResults.Clear();
-            //System.Console.WriteLine("inside ExecuteNewSearch");
-            System.Console.WriteLine("NewSearchTerm: " + NewSearchTerm);
+            Debug.WriteLine("NewSearchTerm: " + NewSearchTerm);
 
             SearchStatus = "Searching for " + NewSearchTerm;
-            string searchResult = UseSearchParser(NewSearchTerm);
-            System.Console.WriteLine(searchResult);
+            string searchResult = await UseSearchParser(NewSearchTerm);
+            Debug.WriteLine(searchResult);
+
+            if (searchResult.StartsWith(";"))
+            {
+                SearchStatus = searchResult.Substring(1);
+                return;
+            }
 
 
             string[] searchResultSplit = searchResult.Split(':');
@@ -158,15 +197,14 @@ namespace MyMovieList.ViewModel
 
                 if (_OmdbSearchResults == null)
                 {
-                    Console.WriteLine("Fuck observablecollection is null");
+                    Debug.WriteLine("Fuck observablecollection is null");
                 }
 
             }
             else
             {
-                Console.WriteLine("no valid results");
-                //SearchStatus = "No results found: " + searchResult;
-                SearchStatus = "Movie not found";
+                Debug.WriteLine("no valid results");
+                SearchStatus = "No results found";
             }
         }
 
@@ -181,44 +219,6 @@ namespace MyMovieList.ViewModel
         public void ExecuteNewSearch(object parameter)
         {
             DoNewSearch();
-
-            //_OmdbSearchResults.Clear();
-            ////System.Console.WriteLine("inside ExecuteNewSearch");
-            //System.Console.WriteLine("NewSearchTerm: " + NewSearchTerm);
-
-            //SearchStatus = "Searching for " + NewSearchTerm;
-            //string searchResult = UseSearchParser(NewSearchTerm);
-            //System.Console.WriteLine(searchResult);
-
-
-            //string[] searchResultSplit = searchResult.Split(':');
-            //if (searchResultSplit[0] == "{\"Title\"")
-            //{ 
-            //    JObject obj = JObject.Parse(searchResult);
-            //    _OmdbSearchResults.Add(new OmdbSearchResult((string)obj["Title"], (string)obj["Year"], (string)obj["imdbID"]));
-            //    SearchStatus = "Found 1 movie.";
-
-            //}
-            //else if (searchResultSplit[0] == "{\"Search\"")
-            //{
-            //    string searchResultTrimmed = "[" + searchResult.Split('[', ']')[1] +"]";
-
-            //    JSonHelper jsonHelper = new JSonHelper();
-            //    OmdbSearchResults = jsonHelper.ConvertJSonToObject<ObservableCollection<OmdbSearchResult>>(searchResultTrimmed);
-            //    SearchStatus = "Found " + _OmdbSearchResults.Count + " movies.";
-
-            //    if (_OmdbSearchResults == null)
-            //    {
-            //        Console.WriteLine("Fuck observablecollection is null");
-            //    }
-
-            //}
-            //else
-            //{
-            //    Console.WriteLine("no valid results");
-            //    SearchStatus = "No results found: " + searchResult;
-            //}
-
         }
 
         public bool CanNewSearch(object parameter)
@@ -236,7 +236,7 @@ namespace MyMovieList.ViewModel
                 return new RelayCommand(ExecuteSelectAndClose, CanSelectAndClose);
             }
         }
-        public void ExecuteSelectAndClose(object parameter)
+        public async void ExecuteSelectAndClose(object parameter)
         {
             if (DataStorage.MovieExistsInCollection(SelectedResult.imdbID))
             {
@@ -246,11 +246,14 @@ namespace MyMovieList.ViewModel
             {
                 try
                 {
-                    CurrentMovie = new Movie(SelectedResult.imdbID);
+                    //CurrentMovie = new Movie(SelectedResult.imdbID);
+                    // cant use constructor because of async inside
+                    var mov = new Movie();
+                    await mov.LoadDataWithID(SelectedResult.imdbID);
+                    CurrentMovie = mov;
                 }
-                catch (Exception e)
+                catch
                 {
-                    //System.Console.WriteLine(e);
                     var msgBoxResult = _messageBoxManager.ShowMessageBox(
                                                     "Failed parsing Json. Data might be corrupt. Go back to main window?",
                                                     "Confirmation",
@@ -266,10 +269,9 @@ namespace MyMovieList.ViewModel
                     }
                     return;
                 }
-                //Movies.Add(CurrentMovie);
             }
 
-            Console.WriteLine("after update " + CurrentMovie.Title);
+            Debug.WriteLine("after update " + CurrentMovie.Title);
             
             // TODO create load method
 
